@@ -27,7 +27,8 @@ interface Enemy {
 }
 
 const Index = () => {
-  const [currentView, setCurrentView] = useState<'menu' | 'battle'>('menu');
+  const [currentView, setCurrentView] = useState<'menu' | 'characters' | 'battle'>('menu');
+  const [activeTab, setActiveTab] = useState<'characters' | 'battle'>('characters');
   const [battleLog, setBattleLog] = useState<string[]>([]);
   const [currentTurn, setCurrentTurn] = useState(0);
   const [battleActive, setBattleActive] = useState(false);
@@ -209,61 +210,115 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-50 to-yellow-100 p-4">
       {currentView === 'menu' && (
-        <div className="max-w-4xl mx-auto py-12">
-          <div className="text-center mb-12 animate-fade-in">
+        <div className="max-w-6xl mx-auto py-8">
+          <div className="text-center mb-8 animate-fade-in">
             <h1 className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-500 mb-4 drop-shadow-lg">
               Cookie Run Kingdom
             </h1>
             <p className="text-2xl text-amber-800 font-semibold">Командная стратегия 🍪</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {initialCharacters.map((char) => (
-              <Card
-                key={char.id}
-                className="overflow-hidden border-4 border-amber-600 game-shadow rounded-3xl"
-              >
-                <div className={`${char.gradient} p-6 text-center`}>
-                  <div className="text-6xl mb-3">{char.emoji}</div>
-                  <h3 className="text-xl font-bold text-white drop-shadow-lg">
-                    {char.name}
-                  </h3>
-                </div>
-
-                <div className="p-4 bg-white">
-                  <div className="space-y-2 mb-3">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-semibold">❤️ HP:</span>
-                      <span className="font-bold text-red-600">{char.hp}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="font-semibold">⚔️ Атака:</span>
-                      <span className="font-bold text-orange-600">{char.attack}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="font-semibold">🛡️ Защита:</span>
-                      <span className="font-bold text-blue-600">{char.defense}</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-2 rounded-xl border-2 border-purple-300">
-                    <p className="font-bold text-purple-800 text-xs mb-1">✨ {char.ability}</p>
-                    <p className="text-xs text-purple-700">{char.abilityDesc}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center">
+          <div className="flex justify-center gap-4 mb-8">
             <Button
-              onClick={startBattle}
-              className="h-20 px-12 text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
+              onClick={() => setActiveTab('characters')}
+              className={`h-16 px-8 text-xl font-bold rounded-2xl transition-all ${
+                activeTab === 'characters'
+                  ? 'bg-pink-500 text-white game-shadow scale-105'
+                  : 'bg-white text-pink-500 border-3 border-pink-500'
+              }`}
             >
-              <Icon name="Swords" className="mr-3" size={32} />
-              Начать командный бой!
+              <Icon name="Users" className="mr-2" size={24} />
+              Персонажи
+            </Button>
+            <Button
+              onClick={() => setActiveTab('battle')}
+              className={`h-16 px-8 text-xl font-bold rounded-2xl transition-all ${
+                activeTab === 'battle'
+                  ? 'bg-orange-500 text-white game-shadow scale-105'
+                  : 'bg-white text-orange-500 border-3 border-orange-500'
+              }`}
+            >
+              <Icon name="Swords" className="mr-2" size={24} />
+              Бой
             </Button>
           </div>
+
+          {activeTab === 'characters' && (
+            <div className="grid md:grid-cols-3 gap-6 animate-fade-in">
+              {initialCharacters.map((char) => (
+                <Card
+                  key={char.id}
+                  className="overflow-hidden border-4 border-amber-600 game-shadow hover:scale-105 transition-transform rounded-3xl"
+                >
+                  <div className={`${char.gradient} p-6 text-center`}>
+                    <div className="text-8xl mb-4">{char.emoji}</div>
+                    <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">
+                      {char.name}
+                    </h3>
+                  </div>
+
+                  <div className="p-6 bg-white">
+                    <div className="space-y-3 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-semibold">❤️ HP:</span>
+                        <span className="font-bold text-red-600">{char.hp}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="font-semibold">⚔️ Атака:</span>
+                        <span className="font-bold text-orange-600">{char.attack}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="font-semibold">🛡️ Защита:</span>
+                        <span className="font-bold text-blue-600">{char.defense}</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-3 rounded-2xl border-2 border-purple-300">
+                      <p className="font-bold text-purple-800 mb-1 text-sm">✨ {char.ability}</p>
+                      <p className="text-xs text-purple-700">{char.abilityDesc}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'battle' && (
+            <div className="max-w-2xl mx-auto animate-fade-in">
+              <Card className="p-8 bg-white border-4 border-amber-600 game-shadow rounded-3xl mb-6">
+                <h2 className="text-3xl font-bold text-center text-amber-800 mb-4">⚔️ Командный бой</h2>
+                <p className="text-center text-lg text-amber-700 mb-6">
+                  Возьми всю команду из 3 героев в бой против полчища врагов!
+                </p>
+                
+                <div className="grid md:grid-cols-3 gap-4 mb-6">
+                  <div className="text-center p-4 bg-gradient-to-br from-pink-50 to-orange-50 rounded-2xl border-2 border-pink-300">
+                    <div className="text-4xl mb-2">🐕</div>
+                    <p className="font-bold text-pink-700">Cake Hound</p>
+                    <p className="text-xs text-pink-600">HP: 800 | ATK: 90</p>
+                  </div>
+                  <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-300">
+                    <div className="text-4xl mb-2">🍰</div>
+                    <p className="font-bold text-purple-700">Cake Monster</p>
+                    <p className="text-xs text-purple-600">HP: 1000 | ATK: 110</p>
+                  </div>
+                  <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl border-2 border-orange-300">
+                    <div className="text-4xl mb-2">🦁</div>
+                    <p className="font-bold text-orange-700">Candy Beast</p>
+                    <p className="text-xs text-orange-600">HP: 700 | ATK: 85</p>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={startBattle}
+                  className="w-full h-20 text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
+                >
+                  <Icon name="Swords" className="mr-3" size={32} />
+                  Начать командный бой!
+                </Button>
+              </Card>
+            </div>
+          )}
         </div>
       )}
 
