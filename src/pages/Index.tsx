@@ -29,7 +29,7 @@ interface Enemy {
 }
 
 const Index = () => {
-  const [currentView, setCurrentView] = useState<'menu' | 'characters' | 'teamSelect' | 'battle'>('menu');
+  const [currentView, setCurrentView] = useState<'menu' | 'characters' | 'teamSelect' | 'heroSelect' | 'battle' | 'duel'>('menu');
   const [activeTab, setActiveTab] = useState<'characters' | 'battle'>('characters');
   const [battleLog, setBattleLog] = useState<string[]>([]);
   const [currentTurn, setCurrentTurn] = useState(0);
@@ -38,6 +38,8 @@ const Index = () => {
   const [selectedTarget, setSelectedTarget] = useState<number | null>(null);
   const [energy, setEnergy] = useState<number[]>([0, 0, 0]);
   const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
+  const [selectedHero, setSelectedHero] = useState<string | null>(null);
+  const [battleMode, setBattleMode] = useState<'3v3' | '1v1'>('3v3');
 
   const initialCharacters: Character[] = [
     {
@@ -149,6 +151,11 @@ const Index = () => {
     }));
   };
 
+  const getRandomEnemy = () => {
+    const randomIndex = Math.floor(Math.random() * allEnemyTypes.length);
+    return { ...allEnemyTypes[randomIndex], id: `${allEnemyTypes[randomIndex].id}-0` };
+  };
+
   const [team, setTeam] = useState<Character[]>(initialCharacters);
   const [enemies, setEnemies] = useState<Enemy[]>(getRandomEnemies());
 
@@ -164,6 +171,23 @@ const Index = () => {
     setSelectedCharIndex(null);
     setSelectedTarget(null);
     setCurrentView('battle');
+  };
+
+  const startDuel = () => {
+    if (!selectedHero) return;
+    const hero = initialCharacters.find(c => c.id === selectedHero);
+    if (!hero) return;
+    
+    setTeam([JSON.parse(JSON.stringify(hero))]);
+    const randomEnemy = getRandomEnemy();
+    setEnemies([randomEnemy]);
+    setEnergy([0]);
+    setBattleLog([`⚔️ Дуэль началась! ${hero.name} против ${randomEnemy.name}!`]);
+    setCurrentTurn(0);
+    setBattleActive(true);
+    setSelectedCharIndex(null);
+    setSelectedTarget(null);
+    setCurrentView('duel');
   };
 
   const performAction = (useAbility: boolean) => {
@@ -353,11 +377,11 @@ const Index = () => {
           )}
 
           {activeTab === 'battle' && (
-            <div className="max-w-2xl mx-auto animate-fade-in">
-              <Card className="p-8 bg-white border-4 border-amber-600 game-shadow rounded-3xl mb-6">
-                <h2 className="text-3xl font-bold text-center text-amber-800 mb-4">⚔️ Командный бой</h2>
+            <div className="max-w-4xl mx-auto animate-fade-in space-y-6">
+              <Card className="p-8 bg-white border-4 border-amber-600 game-shadow rounded-3xl">
+                <h2 className="text-3xl font-bold text-center text-amber-800 mb-4">⚔️ Командный бой 3 на 3</h2>
                 <p className="text-center text-lg text-amber-700 mb-6">
-                  Возьми всю команду из 3 героев в бой против случайной группы врагов!
+                  Возьми команду из 3 героев в бой против группы из 3 врагов!
                 </p>
                 
                 <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-2xl border-2 border-red-300 mb-6">
@@ -378,15 +402,136 @@ const Index = () => {
                 </div>
 
                 <Button
-                  onClick={() => setCurrentView('teamSelect')}
+                  onClick={() => {
+                    setBattleMode('3v3');
+                    setCurrentView('teamSelect');
+                  }}
                   className="w-full h-20 text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
                 >
                   <Icon name="Users" className="mr-3" size={32} />
                   Выбрать команду
                 </Button>
               </Card>
+
+              <Card className="p-8 bg-white border-4 border-purple-600 game-shadow rounded-3xl">
+                <h2 className="text-3xl font-bold text-center text-purple-800 mb-4">🎯 Дуэль 1 на 1</h2>
+                <p className="text-center text-lg text-purple-700 mb-6">
+                  Выбери одного героя для эпической дуэли против случайного врага!
+                </p>
+                
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-2xl border-2 border-purple-300 mb-6">
+                  <h3 className="font-bold text-purple-800 mb-3 text-center">⚡ Особенности дуэли:</h3>
+                  <ul className="space-y-2 text-sm text-purple-700">
+                    <li className="flex items-center justify-center">
+                      <span className="text-lg mr-2">🎲</span>
+                      <span>Один случайный враг из всех доступных</span>
+                    </li>
+                    <li className="flex items-center justify-center">
+                      <span className="text-lg mr-2">⚔️</span>
+                      <span>Решающее сражение один на один</span>
+                    </li>
+                    <li className="flex items-center justify-center">
+                      <span className="text-lg mr-2">🏆</span>
+                      <span>Проверь силу своего любимого героя</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    setBattleMode('1v1');
+                    setCurrentView('heroSelect');
+                  }}
+                  className="w-full h-20 text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
+                >
+                  <Icon name="User" className="mr-3" size={32} />
+                  Выбрать героя
+                </Button>
+              </Card>
             </div>
           )}
+        </div>
+      )}
+
+      {currentView === 'heroSelect' && (
+        <div className="max-w-5xl mx-auto py-8">
+          <div className="mb-6">
+            <Button
+              onClick={() => setCurrentView('menu')}
+              variant="outline"
+              className="border-3 border-purple-600 text-purple-800 hover:bg-purple-100 rounded-2xl"
+            >
+              <Icon name="ArrowLeft" className="mr-2" />
+              Назад
+            </Button>
+          </div>
+
+          <div className="text-center mb-8">
+            <h2 className="text-5xl font-bold text-purple-800 mb-3">🎯 Выбор героя для дуэли</h2>
+            <p className="text-xl text-purple-700">
+              Выбери одного героя для сражения 1 на 1
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-6 mb-8">
+            {initialCharacters.map((char) => {
+              const isSelected = selectedHero === char.id;
+              return (
+                <Card
+                  key={char.id}
+                  onClick={() => setSelectedHero(char.id)}
+                  className={`overflow-hidden border-4 game-shadow cursor-pointer transition-all rounded-3xl ${
+                    isSelected
+                      ? 'border-purple-400 ring-4 ring-purple-300 scale-105'
+                      : 'border-purple-600 hover:scale-105 opacity-70'
+                  }`}
+                >
+                  <div className={`${char.gradient} p-4 text-center relative`}>
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 bg-purple-400 text-purple-900 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg">
+                        ✓
+                      </div>
+                    )}
+                    <div className="text-6xl mb-3">{char.emoji}</div>
+                    <h3 className="text-lg font-bold text-white drop-shadow-lg">
+                      {char.name}
+                    </h3>
+                  </div>
+
+                  <div className="p-4 bg-white">
+                    <div className="space-y-2 mb-3">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold">❤️ HP:</span>
+                        <span className="font-bold text-red-600">{char.hp}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold">⚔️ Атака:</span>
+                        <span className="font-bold text-orange-600">{char.attack}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold">🛡️ Защита:</span>
+                        <span className="font-bold text-blue-600">{char.defense}</span>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-2 rounded-xl border-2 border-purple-300">
+                      <p className="text-xs font-bold text-purple-800">✨ {char.ability}</p>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          <div className="text-center">
+            <Button
+              onClick={startDuel}
+              disabled={!selectedHero}
+              className="h-20 px-12 text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white game-shadow rounded-3xl transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Icon name="Zap" className="mr-3" size={32} />
+              {selectedHero ? 'В дуэль!' : 'Выбери героя'}
+            </Button>
+          </div>
         </div>
       )}
 
@@ -478,7 +623,7 @@ const Index = () => {
         </div>
       )}
 
-      {currentView === 'battle' && (
+      {(currentView === 'battle' || currentView === 'duel') && (
         <div className="max-w-7xl mx-auto py-6">
           <div className="mb-4">
             <Button
