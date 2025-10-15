@@ -83,9 +83,9 @@ const Index = () => {
     }
   ];
 
-  const initialEnemies: Enemy[] = [
+  const allEnemyTypes: Enemy[] = [
     {
-      id: 'cake-hound-1',
+      id: 'cake-hound',
       name: 'Cake Hound',
       hp: 800,
       maxHp: 800,
@@ -93,7 +93,7 @@ const Index = () => {
       emoji: '🐕'
     },
     {
-      id: 'cake-hound-2',
+      id: 'cake-monster',
       name: 'Cake Monster',
       hp: 1000,
       maxHp: 1000,
@@ -107,17 +107,42 @@ const Index = () => {
       maxHp: 700,
       attack: 85,
       emoji: '🦁'
+    },
+    {
+      id: 'killer-cake',
+      name: 'Killer Cake',
+      hp: 350,
+      maxHp: 350,
+      attack: 60,
+      emoji: '🔪'
+    },
+    {
+      id: 'cake-titan',
+      name: 'Cake Titan',
+      hp: 900,
+      maxHp: 900,
+      attack: 35,
+      emoji: '🗿'
     }
   ];
 
+  const getRandomEnemies = () => {
+    const shuffled = [...allEnemyTypes].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3).map((enemy, index) => ({
+      ...enemy,
+      id: `${enemy.id}-${index}`
+    }));
+  };
+
   const [team, setTeam] = useState<Character[]>(initialCharacters);
-  const [enemies, setEnemies] = useState<Enemy[]>(initialEnemies);
+  const [enemies, setEnemies] = useState<Enemy[]>(getRandomEnemies());
 
   const startBattle = () => {
     setTeam(JSON.parse(JSON.stringify(initialCharacters)));
-    setEnemies(JSON.parse(JSON.stringify(initialEnemies)));
+    const randomEnemies = getRandomEnemies();
+    setEnemies(randomEnemies);
     setEnergy([0, 0, 0]);
-    setBattleLog(['⚔️ Командная битва началась! Выберите персонажа для атаки']);
+    setBattleLog([`⚔️ Командная битва началась! Враги: ${randomEnemies.map(e => e.name).join(', ')}`]);
     setCurrentTurn(0);
     setBattleActive(true);
     setSelectedCharIndex(null);
@@ -309,25 +334,24 @@ const Index = () => {
               <Card className="p-8 bg-white border-4 border-amber-600 game-shadow rounded-3xl mb-6">
                 <h2 className="text-3xl font-bold text-center text-amber-800 mb-4">⚔️ Командный бой</h2>
                 <p className="text-center text-lg text-amber-700 mb-6">
-                  Возьми всю команду из 3 героев в бой против полчища врагов!
+                  Возьми всю команду из 3 героев в бой против случайной группы врагов!
                 </p>
                 
-                <div className="grid md:grid-cols-3 gap-4 mb-6">
-                  <div className="text-center p-4 bg-gradient-to-br from-pink-50 to-orange-50 rounded-2xl border-2 border-pink-300">
-                    <div className="text-4xl mb-2">🐕</div>
-                    <p className="font-bold text-pink-700">Cake Hound</p>
-                    <p className="text-xs text-pink-600">HP: 800 | ATK: 90</p>
+                <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-2xl border-2 border-red-300 mb-6">
+                  <h3 className="font-bold text-red-800 mb-3 text-center">👹 Возможные враги:</h3>
+                  <div className="grid grid-cols-5 gap-2">
+                    {allEnemyTypes.map((enemy) => (
+                      <div key={enemy.id} className="text-center p-2 bg-white rounded-xl">
+                        <div className="text-3xl mb-1">{enemy.emoji}</div>
+                        <p className="text-xs font-bold text-gray-800">{enemy.name}</p>
+                        <p className="text-xs text-gray-600">HP: {enemy.hp}</p>
+                        <p className="text-xs text-gray-600">ATK: {enemy.attack}</p>
+                      </div>
+                    ))}
                   </div>
-                  <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-300">
-                    <div className="text-4xl mb-2">🍰</div>
-                    <p className="font-bold text-purple-700">Cake Monster</p>
-                    <p className="text-xs text-purple-600">HP: 1000 | ATK: 110</p>
-                  </div>
-                  <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl border-2 border-orange-300">
-                    <div className="text-4xl mb-2">🦁</div>
-                    <p className="font-bold text-orange-700">Candy Beast</p>
-                    <p className="text-xs text-orange-600">HP: 700 | ATK: 85</p>
-                  </div>
+                  <p className="text-center text-sm text-red-700 mt-3 font-semibold">
+                    🎲 В каждом бою появятся 3 случайных врага!
+                  </p>
                 </div>
 
                 <Button
