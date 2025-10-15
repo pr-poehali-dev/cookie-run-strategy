@@ -15,6 +15,8 @@ interface Character {
   abilityDesc: string;
   gradient: string;
   emoji: string;
+  energy: number;
+  maxEnergy: number;
 }
 
 interface Enemy {
@@ -34,6 +36,7 @@ const Index = () => {
   const [battleActive, setBattleActive] = useState(false);
   const [selectedCharIndex, setSelectedCharIndex] = useState<number | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<number | null>(null);
+  const [energy, setEnergy] = useState<number[]>([0, 0, 0]);
 
   const initialCharacters: Character[] = [
     {
@@ -46,7 +49,9 @@ const Index = () => {
       ability: 'Candy Rush',
       abilityDesc: 'Наносит 200% урона и восстанавливает 15% HP',
       gradient: 'cookie-gradient',
-      emoji: '🍪'
+      emoji: '🍪',
+      energy: 0,
+      maxEnergy: 3
     },
     {
       id: 'shadow-milk',
@@ -58,7 +63,9 @@ const Index = () => {
       ability: 'Dark Deceit',
       abilityDesc: 'Наносит 250% урона',
       gradient: 'shadow-gradient',
-      emoji: '🌑'
+      emoji: '🌑',
+      energy: 0,
+      maxEnergy: 3
     },
     {
       id: 'strawberry',
@@ -70,7 +77,9 @@ const Index = () => {
       ability: 'Berry Heal',
       abilityDesc: 'Восстанавливает 40% HP всей команде',
       gradient: 'strawberry-gradient',
-      emoji: '🍓'
+      emoji: '🍓',
+      energy: 0,
+      maxEnergy: 3
     }
   ];
 
@@ -107,6 +116,7 @@ const Index = () => {
   const startBattle = () => {
     setTeam(JSON.parse(JSON.stringify(initialCharacters)));
     setEnemies(JSON.parse(JSON.stringify(initialEnemies)));
+    setEnergy([0, 0, 0]);
     setBattleLog(['⚔️ Командная битва началась! Выберите персонажа для атаки']);
     setCurrentTurn(0);
     setBattleActive(true);
@@ -120,6 +130,7 @@ const Index = () => {
 
     const newTeam = [...team];
     const newEnemies = [...enemies];
+    const newEnergy = [...energy];
     const character = newTeam[selectedCharIndex];
     const target = newEnemies[selectedTarget];
     const newLog = [...battleLog];
@@ -131,6 +142,14 @@ const Index = () => {
     }
 
     if (useAbility) {
+      if (newEnergy[selectedCharIndex] < 3) {
+        newLog.push(`⚡ ${character.name}: недостаточно энергии! Нужно: 3, есть: ${newEnergy[selectedCharIndex]}`);
+        setBattleLog(newLog);
+        return;
+      }
+
+      newEnergy[selectedCharIndex] = 0;
+
       if (character.id === 'gingerbrave') {
         const damage = Math.floor(character.attack * 2);
         target.hp = Math.max(0, target.hp - damage);
@@ -153,11 +172,13 @@ const Index = () => {
     } else {
       const damage = Math.max(1, Math.floor(character.attack * 0.8));
       target.hp = Math.max(0, target.hp - damage);
-      newLog.push(`⚔️ ${character.name} атакует ${target.name}! Урон: ${damage}`);
+      newEnergy[selectedCharIndex] = Math.min(3, newEnergy[selectedCharIndex] + 1);
+      newLog.push(`⚔️ ${character.name} атакует ${target.name}! Урон: ${damage} (+1 ⚡)`);
     }
 
     setTeam(newTeam);
     setEnemies(newEnemies);
+    setEnergy(newEnergy);
     setBattleLog(newLog);
     setSelectedCharIndex(null);
     setSelectedTarget(null);
@@ -357,12 +378,21 @@ const Index = () => {
                           <h4 className="text-lg font-bold text-white drop-shadow">{char.name}</h4>
                           <span className="text-sm text-white/90">⚔️ {char.attack} 🛡️ {char.defense}</span>
                         </div>
-                        <div className="bg-white/90 p-2 rounded-lg">
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="font-semibold">HP</span>
-                            <span className="font-bold">{char.hp} / {char.maxHp}</span>
+                        <div className="bg-white/90 p-2 rounded-lg space-y-2">
+                          <div>
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="font-semibold">HP</span>
+                              <span className="font-bold">{char.hp} / {char.maxHp}</span>
+                            </div>
+                            <Progress value={(char.hp / char.maxHp) * 100} className="h-2" />
                           </div>
-                          <Progress value={(char.hp / char.maxHp) * 100} className="h-2" />
+                          <div>
+                            <div className="flex justify-between text-xs mb-1">
+                              <span className="font-semibold">⚡ Энергия</span>
+                              <span className="font-bold text-yellow-600">{energy[index]} / 3</span>
+                            </div>
+                            <Progress value={(energy[index] / 3) * 100} className="h-2 bg-yellow-200" />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -427,10 +457,11 @@ const Index = () => {
 
               <Button
                 onClick={() => performAction(true)}
-                className="h-14 px-8 text-lg font-bold bg-purple-600 hover:bg-purple-700 text-white game-shadow rounded-2xl"
+                disabled={selectedCharIndex !== null && energy[selectedCharIndex] < 3}
+                className="h-14 px-8 text-lg font-bold bg-purple-600 hover:bg-purple-700 text-white game-shadow rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Icon name="Sparkles" className="mr-2" />
-                Способность
+                Способность {selectedCharIndex !== null && `(${energy[selectedCharIndex]}/3 ⚡)`}
               </Button>
             </div>
           )}
