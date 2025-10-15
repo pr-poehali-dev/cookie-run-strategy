@@ -23,16 +23,18 @@ interface Enemy {
   hp: number;
   maxHp: number;
   attack: number;
+  emoji: string;
 }
 
 const Index = () => {
-  const [currentView, setCurrentView] = useState<'menu' | 'characters' | 'battle'>('menu');
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  const [currentView, setCurrentView] = useState<'menu' | 'battle'>('menu');
   const [battleLog, setBattleLog] = useState<string[]>([]);
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
+  const [currentTurn, setCurrentTurn] = useState(0);
   const [battleActive, setBattleActive] = useState(false);
+  const [selectedCharIndex, setSelectedCharIndex] = useState<number | null>(null);
+  const [selectedTarget, setSelectedTarget] = useState<number | null>(null);
 
-  const characters: Character[] = [
+  const initialCharacters: Character[] = [
     {
       id: 'gingerbrave',
       name: 'Gingerbrave',
@@ -47,19 +49,19 @@ const Index = () => {
     },
     {
       id: 'shadow-milk',
-      name: 'Shadow Milk Cookie',
+      name: 'Shadow Milk',
       hp: 850,
       maxHp: 850,
       attack: 180,
       defense: 65,
       ability: 'Dark Deceit',
-      abilityDesc: 'Наносит 250% урона и снижает защиту врага на 30%',
+      abilityDesc: 'Наносит 250% урона',
       gradient: 'shadow-gradient',
       emoji: '🌑'
     },
     {
       id: 'strawberry',
-      name: 'Strawberry Cookie',
+      name: 'Strawberry',
       hp: 800,
       maxHp: 800,
       attack: 120,
@@ -71,93 +73,136 @@ const Index = () => {
     }
   ];
 
-  const [enemy, setEnemy] = useState<Enemy>({
-    id: 'cake-hound',
-    name: 'Cake Hound',
-    hp: 1200,
-    maxHp: 1200,
-    attack: 100
-  });
-
-  const [playerChar, setPlayerChar] = useState<Character | null>(null);
-
-  const startBattle = (character: Character) => {
-    setPlayerChar({ ...character });
-    setEnemy({
-      id: 'cake-hound',
+  const initialEnemies: Enemy[] = [
+    {
+      id: 'cake-hound-1',
       name: 'Cake Hound',
-      hp: 1200,
-      maxHp: 1200,
-      attack: 100
-    });
-    setBattleLog(['Битва началась! 🎮']);
-    setIsPlayerTurn(true);
+      hp: 800,
+      maxHp: 800,
+      attack: 90,
+      emoji: '🐕'
+    },
+    {
+      id: 'cake-hound-2',
+      name: 'Cake Monster',
+      hp: 1000,
+      maxHp: 1000,
+      attack: 110,
+      emoji: '🍰'
+    },
+    {
+      id: 'candy-beast',
+      name: 'Candy Beast',
+      hp: 700,
+      maxHp: 700,
+      attack: 85,
+      emoji: '🦁'
+    }
+  ];
+
+  const [team, setTeam] = useState<Character[]>(initialCharacters);
+  const [enemies, setEnemies] = useState<Enemy[]>(initialEnemies);
+
+  const startBattle = () => {
+    setTeam(JSON.parse(JSON.stringify(initialCharacters)));
+    setEnemies(JSON.parse(JSON.stringify(initialEnemies)));
+    setBattleLog(['⚔️ Командная битва началась! Выберите персонажа для атаки']);
+    setCurrentTurn(0);
     setBattleActive(true);
+    setSelectedCharIndex(null);
+    setSelectedTarget(null);
     setCurrentView('battle');
   };
 
-  const performAttack = (useAbility: boolean = false) => {
-    if (!playerChar || !isPlayerTurn || !battleActive) return;
+  const performAction = (useAbility: boolean) => {
+    if (selectedCharIndex === null || selectedTarget === null || !battleActive) return;
 
-    const newPlayerChar = { ...playerChar };
-    const newEnemy = { ...enemy };
+    const newTeam = [...team];
+    const newEnemies = [...enemies];
+    const character = newTeam[selectedCharIndex];
+    const target = newEnemies[selectedTarget];
     const newLog = [...battleLog];
 
-    if (useAbility) {
-      if (playerChar.id === 'gingerbrave') {
-        const damage = Math.floor(playerChar.attack * 2);
-        newEnemy.hp = Math.max(0, newEnemy.hp - damage);
-        const heal = Math.floor(playerChar.maxHp * 0.15);
-        newPlayerChar.hp = Math.min(playerChar.maxHp, playerChar.hp + heal);
-        newLog.push(`${playerChar.name} использует ${playerChar.ability}! 💥 Урон: ${damage}, Лечение: ${heal}`);
-      } else if (playerChar.id === 'shadow-milk') {
-        const damage = Math.floor(playerChar.attack * 2.5);
-        newEnemy.hp = Math.max(0, newEnemy.hp - damage);
-        newLog.push(`${playerChar.name} использует ${playerChar.ability}! 🌟 Критический урон: ${damage}!`);
-      } else if (playerChar.id === 'strawberry') {
-        const heal = Math.floor(playerChar.maxHp * 0.4);
-        newPlayerChar.hp = Math.min(playerChar.maxHp, playerChar.hp + heal);
-        newLog.push(`${playerChar.name} использует ${playerChar.ability}! 💚 Восстановлено HP: ${heal}`);
-      }
-    } else {
-      const damage = Math.max(1, playerChar.attack - Math.floor(enemy.attack * 0.2));
-      newEnemy.hp = Math.max(0, newEnemy.hp - damage);
-      newLog.push(`${playerChar.name} атакует! ⚔️ Урон: ${damage}`);
-    }
-
-    if (newEnemy.hp <= 0) {
-      newLog.push('🎉 Победа! Cake Hound повержен!');
-      setBattleActive(false);
+    if (character.hp <= 0) {
+      newLog.push(`${character.name} не может атаковать!`);
       setBattleLog(newLog);
-      setPlayerChar(newPlayerChar);
-      setEnemy(newEnemy);
       return;
     }
 
-    setIsPlayerTurn(false);
+    if (useAbility) {
+      if (character.id === 'gingerbrave') {
+        const damage = Math.floor(character.attack * 2);
+        target.hp = Math.max(0, target.hp - damage);
+        const heal = Math.floor(character.maxHp * 0.15);
+        character.hp = Math.min(character.maxHp, character.hp + heal);
+        newLog.push(`💥 ${character.name} использует ${character.ability}! Урон: ${damage}, HP+${heal}`);
+      } else if (character.id === 'shadow-milk') {
+        const damage = Math.floor(character.attack * 2.5);
+        target.hp = Math.max(0, target.hp - damage);
+        newLog.push(`🌟 ${character.name} использует ${character.ability}! Критический урон: ${damage}!`);
+      } else if (character.id === 'strawberry') {
+        const heal = Math.floor(character.maxHp * 0.4);
+        newTeam.forEach(char => {
+          if (char.hp > 0) {
+            char.hp = Math.min(char.maxHp, char.hp + heal);
+          }
+        });
+        newLog.push(`💚 ${character.name} использует ${character.ability}! Команда восстановила ${heal} HP!`);
+      }
+    } else {
+      const damage = Math.max(1, Math.floor(character.attack * 0.8));
+      target.hp = Math.max(0, target.hp - damage);
+      newLog.push(`⚔️ ${character.name} атакует ${target.name}! Урон: ${damage}`);
+    }
+
+    setTeam(newTeam);
+    setEnemies(newEnemies);
     setBattleLog(newLog);
-    setPlayerChar(newPlayerChar);
-    setEnemy(newEnemy);
+    setSelectedCharIndex(null);
+    setSelectedTarget(null);
 
-    setTimeout(() => {
-      enemyTurn(newPlayerChar, newEnemy, newLog);
-    }, 1500);
-  };
-
-  const enemyTurn = (currentPlayer: Character, currentEnemy: Enemy, currentLog: string[]) => {
-    const damage = Math.max(1, currentEnemy.attack - Math.floor(currentPlayer.defense * 0.3));
-    const newPlayerHp = Math.max(0, currentPlayer.hp - damage);
-    const newLog = [...currentLog, `${currentEnemy.name} атакует! 🐕 Урон: ${damage}`];
-
-    setPlayerChar({ ...currentPlayer, hp: newPlayerHp });
-    setBattleLog(newLog);
-
-    if (newPlayerHp <= 0) {
-      newLog.push('💀 Поражение... Попробуйте снова!');
+    const aliveEnemies = newEnemies.filter(e => e.hp > 0);
+    if (aliveEnemies.length === 0) {
+      newLog.push('🎉 ПОБЕДА! Все враги повержены!');
       setBattleActive(false);
       setBattleLog(newLog);
-    } else {
-      setIsPlayerTurn(true);
+      return;
+    }
+
+    setTimeout(() => {
+      enemyTurn(newTeam, newEnemies, newLog);
+    }, 1000);
+  };
+
+  const enemyTurn = (currentTeam: Character[], currentEnemies: Enemy[], currentLog: string[]) => {
+    const newLog = [...currentLog];
+    const aliveEnemies = currentEnemies.filter(e => e.hp > 0);
+    const aliveHeroes = currentTeam.filter(c => c.hp > 0);
+
+    if (aliveHeroes.length === 0) {
+      newLog.push('💀 ПОРАЖЕНИЕ! Вся команда пала в бою...');
+      setBattleActive(false);
+      setBattleLog(newLog);
+      setTeam([...currentTeam]);
+      return;
+    }
+
+    aliveEnemies.forEach(enemy => {
+      const targetIndex = Math.floor(Math.random() * aliveHeroes.length);
+      const target = aliveHeroes[targetIndex];
+      const damage = Math.max(1, enemy.attack - Math.floor(target.defense * 0.3));
+      target.hp = Math.max(0, target.hp - damage);
+      newLog.push(`${enemy.emoji} ${enemy.name} атакует ${target.name}! Урон: ${damage}`);
+    });
+
+    setTeam([...currentTeam]);
+    setBattleLog(newLog);
+
+    const stillAlive = currentTeam.filter(c => c.hp > 0);
+    if (stillAlive.length === 0) {
+      newLog.push('💀 ПОРАЖЕНИЕ! Вся команда пала в бою...');
+      setBattleActive(false);
+      setBattleLog(newLog);
     }
   };
 
@@ -169,186 +214,165 @@ const Index = () => {
             <h1 className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-500 mb-4 drop-shadow-lg">
               Cookie Run Kingdom
             </h1>
-            <p className="text-2xl text-amber-800 font-semibold">Пошаговая стратегия 🍪</p>
+            <p className="text-2xl text-amber-800 font-semibold">Командная стратегия 🍪</p>
           </div>
 
-          <div className="grid gap-6 max-w-md mx-auto">
-            <Button
-              onClick={() => setCurrentView('characters')}
-              className="h-20 text-2xl font-bold bg-pink-500 hover:bg-pink-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
-            >
-              <Icon name="Users" className="mr-3" size={32} />
-              Выбрать персонажа
-            </Button>
-
-            <Button
-              variant="outline"
-              className="h-20 text-2xl font-bold border-4 border-amber-600 text-amber-800 hover:bg-amber-100 game-shadow rounded-3xl transition-transform hover:scale-105"
-            >
-              <Icon name="Trophy" className="mr-3" size={32} />
-              Рейтинг
-            </Button>
-
-            <Button
-              variant="outline"
-              className="h-20 text-2xl font-bold border-4 border-purple-600 text-purple-800 hover:bg-purple-100 game-shadow rounded-3xl transition-transform hover:scale-105"
-            >
-              <Icon name="Settings" className="mr-3" size={32} />
-              Настройки
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {currentView === 'characters' && (
-        <div className="max-w-6xl mx-auto py-8">
-          <div className="flex items-center justify-between mb-8">
-            <Button
-              onClick={() => setCurrentView('menu')}
-              variant="outline"
-              className="border-3 border-amber-600 text-amber-800 hover:bg-amber-100 rounded-2xl"
-            >
-              <Icon name="ArrowLeft" className="mr-2" />
-              Назад
-            </Button>
-            <h2 className="text-4xl font-bold text-amber-800">Выбери героя 🌟</h2>
-            <div className="w-24"></div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {characters.map((char) => (
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {initialCharacters.map((char) => (
               <Card
                 key={char.id}
-                className="overflow-hidden border-4 border-amber-600 game-shadow hover:scale-105 transition-transform cursor-pointer rounded-3xl"
-                onClick={() => setSelectedCharacter(char)}
+                className="overflow-hidden border-4 border-amber-600 game-shadow rounded-3xl"
               >
                 <div className={`${char.gradient} p-6 text-center`}>
-                  <div className="text-8xl mb-4">{char.emoji}</div>
-                  <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">
+                  <div className="text-6xl mb-3">{char.emoji}</div>
+                  <h3 className="text-xl font-bold text-white drop-shadow-lg">
                     {char.name}
                   </h3>
                 </div>
 
-                <div className="p-6 bg-white">
-                  <div className="space-y-3 mb-4">
-                    <div className="flex justify-between text-sm">
+                <div className="p-4 bg-white">
+                  <div className="space-y-2 mb-3">
+                    <div className="flex justify-between text-xs">
                       <span className="font-semibold">❤️ HP:</span>
                       <span className="font-bold text-red-600">{char.hp}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs">
                       <span className="font-semibold">⚔️ Атака:</span>
                       <span className="font-bold text-orange-600">{char.attack}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs">
                       <span className="font-semibold">🛡️ Защита:</span>
                       <span className="font-bold text-blue-600">{char.defense}</span>
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-3 rounded-2xl mb-4 border-2 border-purple-300">
-                    <p className="font-bold text-purple-800 mb-1 text-sm">✨ {char.ability}</p>
+                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-2 rounded-xl border-2 border-purple-300">
+                    <p className="font-bold text-purple-800 text-xs mb-1">✨ {char.ability}</p>
                     <p className="text-xs text-purple-700">{char.abilityDesc}</p>
                   </div>
-
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      startBattle(char);
-                    }}
-                    className="w-full bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white font-bold rounded-2xl h-12"
-                  >
-                    В бой! 🎮
-                  </Button>
                 </div>
               </Card>
             ))}
           </div>
+
+          <div className="text-center">
+            <Button
+              onClick={startBattle}
+              className="h-20 px-12 text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
+            >
+              <Icon name="Swords" className="mr-3" size={32} />
+              Начать командный бой!
+            </Button>
+          </div>
         </div>
       )}
 
-      {currentView === 'battle' && playerChar && (
-        <div className="max-w-5xl mx-auto py-8">
-          <div className="mb-6">
+      {currentView === 'battle' && (
+        <div className="max-w-7xl mx-auto py-6">
+          <div className="mb-4">
             <Button
               onClick={() => {
-                setCurrentView('characters');
+                setCurrentView('menu');
                 setBattleActive(false);
               }}
               variant="outline"
               className="border-3 border-amber-600 text-amber-800 hover:bg-amber-100 rounded-2xl"
             >
               <Icon name="ArrowLeft" className="mr-2" />
-              Выйти из боя
+              Выйти
             </Button>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-6">
-            <Card className={`${playerChar.gradient} p-6 border-4 border-amber-600 game-shadow rounded-3xl`}>
-              <div className="text-center mb-4">
-                <div className="text-7xl mb-3">{playerChar.emoji}</div>
-                <h3 className="text-2xl font-bold text-white drop-shadow-lg">{playerChar.name}</h3>
+          <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h3 className="text-2xl font-bold text-green-700 mb-4 text-center">👥 Ваша команда</h3>
+              <div className="grid gap-3">
+                {team.map((char, index) => (
+                  <Card
+                    key={char.id}
+                    className={`${char.gradient} p-4 border-3 game-shadow rounded-2xl cursor-pointer transition-all ${
+                      selectedCharIndex === index ? 'ring-4 ring-yellow-400 scale-105' : ''
+                    } ${char.hp <= 0 ? 'opacity-50 grayscale' : 'hover:scale-102'}`}
+                    onClick={() => char.hp > 0 && battleActive && setSelectedCharIndex(index)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-5xl">{char.emoji}</div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="text-lg font-bold text-white drop-shadow">{char.name}</h4>
+                          <span className="text-sm text-white/90">⚔️ {char.attack} 🛡️ {char.defense}</span>
+                        </div>
+                        <div className="bg-white/90 p-2 rounded-lg">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="font-semibold">HP</span>
+                            <span className="font-bold">{char.hp} / {char.maxHp}</span>
+                          </div>
+                          <Progress value={(char.hp / char.maxHp) * 100} className="h-2" />
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
-              <div className="bg-white/90 backdrop-blur p-4 rounded-2xl">
-                <div className="mb-2">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-semibold">❤️ HP</span>
-                    <span className="font-bold">{playerChar.hp} / {playerChar.maxHp}</span>
-                  </div>
-                  <Progress value={(playerChar.hp / playerChar.maxHp) * 100} className="h-3" />
-                </div>
-                <div className="flex justify-between text-sm mt-2">
-                  <span>⚔️ {playerChar.attack}</span>
-                  <span>🛡️ {playerChar.defense}</span>
-                </div>
-              </div>
-            </Card>
+            </div>
 
-            <Card className="bg-gradient-to-br from-purple-900 to-gray-800 p-6 border-4 border-red-600 game-shadow rounded-3xl">
-              <div className="text-center mb-4">
-                <div className="text-7xl mb-3">🐕</div>
-                <h3 className="text-2xl font-bold text-white drop-shadow-lg">{enemy.name}</h3>
+            <div>
+              <h3 className="text-2xl font-bold text-red-700 mb-4 text-center">👹 Враги</h3>
+              <div className="grid gap-3">
+                {enemies.map((enemy, index) => (
+                  <Card
+                    key={enemy.id}
+                    className={`bg-gradient-to-br from-purple-900 to-gray-800 p-4 border-3 border-red-500 game-shadow rounded-2xl cursor-pointer transition-all ${
+                      selectedTarget === index ? 'ring-4 ring-red-400 scale-105' : ''
+                    } ${enemy.hp <= 0 ? 'opacity-30 grayscale' : 'hover:scale-102'}`}
+                    onClick={() => enemy.hp > 0 && selectedCharIndex !== null && setSelectedTarget(index)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-5xl">{enemy.emoji}</div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="text-lg font-bold text-white drop-shadow">{enemy.name}</h4>
+                          <span className="text-sm text-white/90">⚔️ {enemy.attack}</span>
+                        </div>
+                        <div className="bg-white/90 p-2 rounded-lg">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="font-semibold">HP</span>
+                            <span className="font-bold">{enemy.hp} / {enemy.maxHp}</span>
+                          </div>
+                          <Progress value={(enemy.hp / enemy.maxHp) * 100} className="h-2" />
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
               </div>
-              <div className="bg-white/90 backdrop-blur p-4 rounded-2xl">
-                <div className="mb-2">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-semibold">❤️ HP</span>
-                    <span className="font-bold">{enemy.hp} / {enemy.maxHp}</span>
-                  </div>
-                  <Progress value={(enemy.hp / enemy.maxHp) * 100} className="h-3" />
-                </div>
-                <div className="flex justify-between text-sm mt-2">
-                  <span>⚔️ {enemy.attack}</span>
-                </div>
-              </div>
-            </Card>
+            </div>
           </div>
 
-          <Card className="p-6 bg-white/90 backdrop-blur border-4 border-amber-600 game-shadow rounded-3xl mb-6">
-            <h4 className="font-bold text-lg mb-3 text-amber-800">📜 Лог боя</h4>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {battleLog.map((log, index) => (
-                <p key={index} className="text-sm bg-amber-50 p-2 rounded-lg animate-fade-in">
+          <Card className="p-4 bg-white/90 backdrop-blur border-4 border-amber-600 game-shadow rounded-2xl mb-4">
+            <h4 className="font-bold text-lg mb-2 text-amber-800">📜 Лог боя</h4>
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {battleLog.slice(-8).map((log, index) => (
+                <p key={index} className="text-sm bg-amber-50 p-2 rounded-lg">
                   {log}
                 </p>
               ))}
             </div>
           </Card>
 
-          {battleActive && (
+          {battleActive && selectedCharIndex !== null && selectedTarget !== null && (
             <div className="flex gap-4 justify-center">
               <Button
-                onClick={() => performAttack(false)}
-                disabled={!isPlayerTurn}
-                className="h-16 px-8 text-xl font-bold bg-orange-500 hover:bg-orange-600 text-white game-shadow rounded-2xl disabled:opacity-50"
+                onClick={() => performAction(false)}
+                className="h-14 px-8 text-lg font-bold bg-orange-500 hover:bg-orange-600 text-white game-shadow rounded-2xl"
               >
                 <Icon name="Sword" className="mr-2" />
                 Атака
               </Button>
 
               <Button
-                onClick={() => performAttack(true)}
-                disabled={!isPlayerTurn}
-                className="h-16 px-8 text-xl font-bold bg-purple-600 hover:bg-purple-700 text-white game-shadow rounded-2xl disabled:opacity-50"
+                onClick={() => performAction(true)}
+                className="h-14 px-8 text-lg font-bold bg-purple-600 hover:bg-purple-700 text-white game-shadow rounded-2xl"
               >
                 <Icon name="Sparkles" className="mr-2" />
                 Способность
@@ -356,19 +380,23 @@ const Index = () => {
             </div>
           )}
 
+          {battleActive && (selectedCharIndex === null || selectedTarget === null) && (
+            <div className="text-center">
+              <p className="text-lg font-semibold text-amber-800 bg-yellow-100 p-4 rounded-2xl border-2 border-yellow-400">
+                {selectedCharIndex === null
+                  ? '👈 Выберите персонажа из команды'
+                  : '👉 Выберите цель для атаки'}
+              </p>
+            </div>
+          )}
+
           {!battleActive && (
             <div className="text-center">
               <Button
-                onClick={() => {
-                  if (playerChar.hp <= 0) {
-                    startBattle(playerChar);
-                  } else {
-                    setCurrentView('characters');
-                  }
-                }}
+                onClick={startBattle}
                 className="h-16 px-12 text-xl font-bold bg-green-500 hover:bg-green-600 text-white game-shadow rounded-2xl"
               >
-                {playerChar.hp <= 0 ? 'Попробовать снова' : 'Следующий бой'}
+                Начать новый бой
               </Button>
             </div>
           )}
