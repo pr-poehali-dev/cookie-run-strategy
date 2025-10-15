@@ -45,12 +45,12 @@ const Index = () => {
     {
       id: 'gingerbrave',
       name: 'Gingerbrave',
-      hp: 950,
-      maxHp: 950,
-      attack: 140,
-      defense: 85,
+      hp: 850,
+      maxHp: 850,
+      attack: 130,
+      defense: 60,
       ability: 'Candy Rush',
-      abilityDesc: 'Наносит 200% урона и восстанавливает 15% HP',
+      abilityDesc: 'Наносит 150% урона и восстанавливает 15% HP',
       gradient: 'cookie-gradient',
       emoji: '🍪',
       energy: 0,
@@ -61,14 +61,14 @@ const Index = () => {
       name: 'Shadow Milk',
       hp: 850,
       maxHp: 850,
-      attack: 180,
+      attack: 140,
       defense: 65,
       ability: 'Dark Deceit',
-      abilityDesc: 'Наносит 250% урона',
+      abilityDesc: 'Наносит 250% урона (требует 5 энергии)',
       gradient: 'shadow-gradient',
       emoji: '🌑',
       energy: 0,
-      maxEnergy: 3
+      maxEnergy: 5
     },
     {
       id: 'strawberry',
@@ -115,16 +115,16 @@ const Index = () => {
     {
       id: 'wind-archer',
       name: 'Wind Archer',
-      hp: 650,
-      maxHp: 650,
+      hp: 550,
+      maxHp: 550,
       attack: 195,
       defense: 50,
       ability: 'Wind Shot',
-      abilityDesc: 'Наносит 280% критического урона одной цели',
+      abilityDesc: 'Наносит 280% критического урона одной цели (требует 5 энергии)',
       gradient: 'bg-gradient-to-br from-teal-400 via-cyan-500 to-emerald-600',
       emoji: '🏹',
       energy: 0,
-      maxEnergy: 3
+      maxEnergy: 5
     }
   ];
 
@@ -243,8 +243,9 @@ const Index = () => {
     }
 
     if (useAbility) {
-      if (newEnergy[selectedCharIndex] < 3) {
-        newLog.push(`⚡ ${character.name}: недостаточно энергии! Нужно: 3, есть: ${newEnergy[selectedCharIndex]}`);
+      const requiredEnergy = character.maxEnergy;
+      if (newEnergy[selectedCharIndex] < requiredEnergy) {
+        newLog.push(`⚡ ${character.name}: недостаточно энергии! Нужно: ${requiredEnergy}, есть: ${newEnergy[selectedCharIndex]}`);
         setBattleLog(newLog);
         return;
       }
@@ -252,7 +253,7 @@ const Index = () => {
       newEnergy[selectedCharIndex] = 0;
 
       if (character.id === 'gingerbrave') {
-        const damage = Math.floor(character.attack * 2);
+        const damage = Math.floor(character.attack * 1.5);
         target.hp = Math.max(0, target.hp - damage);
         const heal = Math.floor(character.maxHp * 0.15);
         character.hp = Math.min(character.maxHp, character.hp + heal);
@@ -433,7 +434,7 @@ const Index = () => {
                           </div>
                         </div>
                         <div className="mt-3 pt-3 border-t-2 border-purple-300">
-                          <span className="text-xs text-purple-600 font-semibold">⚡ Требует 3 энергии</span>
+                          <span className="text-xs text-purple-600 font-semibold">⚡ Требует {char.maxEnergy} энергии</span>
                         </div>
                       </div>
                     </div>
@@ -756,9 +757,9 @@ const Index = () => {
                           <div>
                             <div className="flex justify-between text-xs mb-1">
                               <span className="font-semibold">⚡ Энергия</span>
-                              <span className="font-bold text-yellow-600">{energy[index]} / 3</span>
+                              <span className="font-bold text-yellow-600">{energy[index]} / {char.maxEnergy}</span>
                             </div>
-                            <Progress value={(energy[index] / 3) * 100} className="h-2 bg-yellow-200" />
+                            <Progress value={(energy[index] / char.maxEnergy) * 100} className="h-2 bg-yellow-200" />
                           </div>
                         </div>
                       </div>
@@ -824,11 +825,11 @@ const Index = () => {
 
               <Button
                 onClick={() => performAction(true)}
-                disabled={selectedCharIndex !== null && energy[selectedCharIndex] < 3}
+                disabled={selectedCharIndex !== null && energy[selectedCharIndex] < team[selectedCharIndex]?.maxEnergy}
                 className="h-14 px-8 text-lg font-bold bg-purple-600 hover:bg-purple-700 text-white game-shadow rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Icon name="Sparkles" className="mr-2" />
-                Способность {selectedCharIndex !== null && `(${energy[selectedCharIndex]}/3 ⚡)`}
+                Способность {selectedCharIndex !== null && `(${energy[selectedCharIndex]}/${team[selectedCharIndex]?.maxEnergy || 3} ⚡)`}
               </Button>
             </div>
           )}
