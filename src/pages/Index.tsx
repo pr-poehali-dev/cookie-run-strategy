@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Character, Enemy, ViewType, BattleMode, TabType } from '@/types/game';
-import { initialCharacters, allEnemyTypes, getRandomEnemies, getRandomEnemy } from '@/data/characters';
+import { initialCharacters, allEnemyTypes, bossTypes, getRandomEnemies, getRandomEnemy, getRandomBoss } from '@/data/characters';
 import { CharactersTab } from '@/components/game/CharactersTab';
 import { BattleTab } from '@/components/game/BattleTab';
 import { TeamSelection } from '@/components/game/TeamSelection';
 import { HeroSelection } from '@/components/game/HeroSelection';
 import { BattleScene } from '@/components/game/BattleScene';
+import { BossTeamSelection } from '@/components/game/BossTeamSelection';
 import { performCharacterAbility, performEnemyTurn } from '@/utils/battleLogic';
 
 const Index = () => {
@@ -22,6 +23,7 @@ const Index = () => {
   const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
   const [selectedHero, setSelectedHero] = useState<string | null>(null);
   const [battleMode, setBattleMode] = useState<BattleMode>('3v3');
+  const [bossTeamSize, setBossTeamSize] = useState<number>(3);
   const [coins, setCoins] = useState(0);
   const [ownedCharacters, setOwnedCharacters] = useState<string[]>(['gingerbrave']);
   const [team, setTeam] = useState<Character[]>(initialCharacters);
@@ -56,6 +58,20 @@ const Index = () => {
     setSelectedCharIndex(null);
     setSelectedTarget(null);
     setCurrentView('duel');
+  };
+
+  const startBossBattle = () => {
+    const selectedChars = initialCharacters.filter(c => selectedTeam.includes(c.id));
+    setTeam(JSON.parse(JSON.stringify(selectedChars)));
+    const boss = getRandomBoss();
+    setEnemies([boss]);
+    setEnergy(selectedChars.map(() => 0));
+    setBattleLog([`💀 БОЙ С БОССОМ! ${selectedChars.map(c => c.name).join(', ')} против ${boss.name}!`]);
+    setCurrentTurn(0);
+    setBattleActive(true);
+    setSelectedCharIndex(null);
+    setSelectedTarget(null);
+    setCurrentView('bossBattle');
   };
 
   const performAction = (useAbility: boolean) => {
@@ -101,10 +117,14 @@ const Index = () => {
     const aliveEnemies = newEnemies.filter(e => e.hp > 0);
     if (aliveEnemies.length === 0) {
       const defeatedCount = newEnemies.length;
-      const earnedCoins = defeatedCount * 20;
+      const isBossBattle = currentView === 'bossBattle';
+      const earnedCoins = isBossBattle ? 50 : defeatedCount * 20;
       setCoins(coins + earnedCoins);
       newLog.push(`🎉 ПОБЕДА! Все враги повержены!`);
-      newLog.push(`💰 Получено монет: ${earnedCoins} (побеждено врагов: ${defeatedCount})`);
+      if (isBossBattle) {
+        newLog.push(`💀 БОСС ПОВЕРЖЁН!`);
+      }
+      newLog.push(`💰 Получено монет: ${earnedCoins}`);
       setBattleActive(false);
       setBattleLog(newLog);
       return;
@@ -147,8 +167,25 @@ const Index = () => {
     setBattleMode(mode);
     if (mode === '3v3') {
       setCurrentView('teamSelect');
-    } else {
+    } else if (mode === '1v1') {
       setCurrentView('heroSelect');
+    } else if (mode === 'boss') {
+      setCurrentView('bossTeamSelect');
+    }
+  };
+
+  const handleToggleBossTeamCharacter = (charId: string) => {
+    if (selectedTeam.includes(charId)) {
+      setSelectedTeam(selectedTeam.filter(id => id !== charId));
+    } else if (selectedTeam.length < bossTeamSize) {
+      setSelectedTeam([...selectedTeam, charId]);
+    }
+  };
+
+  const handleSetBossTeamSize = (size: number) => {
+    setBossTeamSize(size);
+    if (selectedTeam.length > size) {
+      setSelectedTeam(selectedTeam.slice(0, size));
     }
   };
 
@@ -208,6 +245,7 @@ const Index = () => {
           {activeTab === 'battle' && (
             <BattleTab
               allEnemyTypes={allEnemyTypes}
+              bossTypes={bossTypes}
               onSelectMode={handleSelectMode}
             />
           )}
@@ -236,7 +274,20 @@ const Index = () => {
         />
       )}
 
-      {(currentView === 'battle' || currentView === 'duel') && (
+      {currentView === 'bossTeamSelect' && (
+        <BossTeamSelection
+          characters={initialCharacters}
+          ownedCharacters={ownedCharacters}
+          selectedTeam={selectedTeam}
+          teamSize={bossTeamSize}
+          onToggleCharacter={handleToggleBossTeamCharacter}
+          onSetTeamSize={handleSetBossTeamSize}
+          onStartBossBattle={startBossBattle}
+          onBack={() => setCurrentView('menu')}
+        />
+      )}
+
+      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle') && (
         <BattleScene
           team={team}
           enemies={enemies}

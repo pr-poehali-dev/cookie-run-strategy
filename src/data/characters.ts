@@ -164,3 +164,35 @@ export const getRandomEnemy = (): Enemy => {
   const randomIndex = Math.floor(Math.random() * allEnemyTypes.length);
   return { ...allEnemyTypes[randomIndex], id: `${allEnemyTypes[randomIndex].id}-0` };
 };
+
+export const bossTypes: Enemy[] = [
+  {
+    id: 'cake-witch',
+    name: 'Cake Witch',
+    hp: 1300,
+    maxHp: 1300,
+    attack: 105,
+    emoji: '🧙‍♀️'
+  },
+  {
+    id: 'king-pie',
+    name: 'King Pie',
+    hp: 1800,
+    maxHp: 1800,
+    attack: 70,
+    emoji: '👑'
+  },
+  {
+    id: 'the-great-destroyer',
+    name: 'The Great Destroyer',
+    hp: 1500,
+    maxHp: 1500,
+    attack: 85,
+    emoji: '💀'
+  }
+];
+
+export const getRandomBoss = (): Enemy => {
+  const randomIndex = Math.floor(Math.random() * bossTypes.length);
+  return { ...bossTypes[randomIndex] };
+};
