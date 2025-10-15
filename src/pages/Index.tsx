@@ -127,6 +127,20 @@ const Index = () => {
       emoji: '🏹',
       energy: 0,
       maxEnergy: 5
+    },
+    {
+      id: 'sea-fairy',
+      name: 'Sea Fairy Cookie',
+      hp: 600,
+      maxHp: 600,
+      attack: 100,
+      defense: 30,
+      ability: 'Ocean Wave',
+      abilityDesc: 'Наносит 120% урона всем врагам (AoE атака)',
+      gradient: 'bg-gradient-to-br from-blue-400 via-cyan-300 to-teal-400',
+      emoji: '🧚',
+      energy: 0,
+      maxEnergy: 3
     }
   ];
 
@@ -294,6 +308,16 @@ const Index = () => {
         const damage = Math.floor(character.attack * 2.8);
         target.hp = Math.max(0, target.hp - damage);
         newLog.push(`🏹 ${character.name} использует ${character.ability}! КРИТИЧЕСКИЙ урон: ${damage}!`);
+      } else if (character.id === 'sea-fairy') {
+        const damage = Math.floor(character.attack * 1.2);
+        let enemiesHit = 0;
+        newEnemies.forEach(enemy => {
+          if (enemy.hp > 0) {
+            enemy.hp = Math.max(0, enemy.hp - damage);
+            enemiesHit++;
+          }
+        });
+        newLog.push(`🌊 ${character.name} использует ${character.ability}! Урон ${damage} всем врагам (${enemiesHit} целей)!`);
       }
     } else {
       const damage = Math.max(1, Math.floor(character.attack * 0.8));
