@@ -29,7 +29,7 @@ interface Enemy {
 }
 
 const Index = () => {
-  const [currentView, setCurrentView] = useState<'menu' | 'characters' | 'battle'>('menu');
+  const [currentView, setCurrentView] = useState<'menu' | 'characters' | 'teamSelect' | 'battle'>('menu');
   const [activeTab, setActiveTab] = useState<'characters' | 'battle'>('characters');
   const [battleLog, setBattleLog] = useState<string[]>([]);
   const [currentTurn, setCurrentTurn] = useState(0);
@@ -37,6 +37,7 @@ const Index = () => {
   const [selectedCharIndex, setSelectedCharIndex] = useState<number | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<number | null>(null);
   const [energy, setEnergy] = useState<number[]>([0, 0, 0]);
+  const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
 
   const initialCharacters: Character[] = [
     {
@@ -78,6 +79,20 @@ const Index = () => {
       abilityDesc: 'Восстанавливает 40% HP всей команде',
       gradient: 'strawberry-gradient',
       emoji: '🍓',
+      energy: 0,
+      maxEnergy: 3
+    },
+    {
+      id: 'red-velvet',
+      name: 'Red Velvet',
+      hp: 880,
+      maxHp: 880,
+      attack: 155,
+      defense: 75,
+      ability: 'Vampire Strike',
+      abilityDesc: 'Наносит 220% урона и крадёт 50% нанесённого урона как HP',
+      gradient: 'bg-gradient-to-br from-red-600 to-red-900',
+      emoji: '🩸',
       energy: 0,
       maxEnergy: 3
     }
@@ -138,10 +153,11 @@ const Index = () => {
   const [enemies, setEnemies] = useState<Enemy[]>(getRandomEnemies());
 
   const startBattle = () => {
-    setTeam(JSON.parse(JSON.stringify(initialCharacters)));
+    const selectedChars = initialCharacters.filter(c => selectedTeam.includes(c.id));
+    setTeam(JSON.parse(JSON.stringify(selectedChars)));
     const randomEnemies = getRandomEnemies();
     setEnemies(randomEnemies);
-    setEnergy([0, 0, 0]);
+    setEnergy(selectedChars.map(() => 0));
     setBattleLog([`⚔️ Командная битва началась! Враги: ${randomEnemies.map(e => e.name).join(', ')}`]);
     setCurrentTurn(0);
     setBattleActive(true);
@@ -193,6 +209,13 @@ const Index = () => {
           }
         });
         newLog.push(`💚 ${character.name} использует ${character.ability}! Команда восстановила ${heal} HP!`);
+      } else if (character.id === 'red-velvet') {
+        const damage = Math.floor(character.attack * 2.2);
+        const actualDamage = Math.min(damage, target.hp);
+        target.hp = Math.max(0, target.hp - damage);
+        const vampHeal = Math.floor(actualDamage * 0.5);
+        character.hp = Math.min(character.maxHp, character.hp + vampHeal);
+        newLog.push(`🩸 ${character.name} использует ${character.ability}! Урон: ${damage}, вампиризм: ${vampHeal} HP!`);
       }
     } else {
       const damage = Math.max(1, Math.floor(character.attack * 0.8));
@@ -290,7 +313,7 @@ const Index = () => {
           </div>
 
           {activeTab === 'characters' && (
-            <div className="grid md:grid-cols-3 gap-6 animate-fade-in">
+            <div className="grid md:grid-cols-4 gap-6 animate-fade-in">
               {initialCharacters.map((char) => (
                 <Card
                   key={char.id}
@@ -298,7 +321,7 @@ const Index = () => {
                 >
                   <div className={`${char.gradient} p-6 text-center`}>
                     <div className="text-8xl mb-4">{char.emoji}</div>
-                    <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg">
+                    <h3 className="text-xl font-bold text-white mb-2 drop-shadow-lg">
                       {char.name}
                     </h3>
                   </div>
@@ -355,15 +378,103 @@ const Index = () => {
                 </div>
 
                 <Button
-                  onClick={startBattle}
+                  onClick={() => setCurrentView('teamSelect')}
                   className="w-full h-20 text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
                 >
-                  <Icon name="Swords" className="mr-3" size={32} />
-                  Начать командный бой!
+                  <Icon name="Users" className="mr-3" size={32} />
+                  Выбрать команду
                 </Button>
               </Card>
             </div>
           )}
+        </div>
+      )}
+
+      {currentView === 'teamSelect' && (
+        <div className="max-w-5xl mx-auto py-8">
+          <div className="mb-6">
+            <Button
+              onClick={() => setCurrentView('menu')}
+              variant="outline"
+              className="border-3 border-amber-600 text-amber-800 hover:bg-amber-100 rounded-2xl"
+            >
+              <Icon name="ArrowLeft" className="mr-2" />
+              Назад
+            </Button>
+          </div>
+
+          <div className="text-center mb-8">
+            <h2 className="text-5xl font-bold text-amber-800 mb-3">👥 Выбор команды</h2>
+            <p className="text-xl text-amber-700">
+              Выбери 3 героев для командного боя ({selectedTeam.length}/3)
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-6 mb-8">
+            {initialCharacters.map((char) => {
+              const isSelected = selectedTeam.includes(char.id);
+              return (
+                <Card
+                  key={char.id}
+                  onClick={() => {
+                    if (isSelected) {
+                      setSelectedTeam(selectedTeam.filter(id => id !== char.id));
+                    } else if (selectedTeam.length < 3) {
+                      setSelectedTeam([...selectedTeam, char.id]);
+                    }
+                  }}
+                  className={`overflow-hidden border-4 game-shadow cursor-pointer transition-all rounded-3xl ${
+                    isSelected
+                      ? 'border-yellow-400 ring-4 ring-yellow-300 scale-105'
+                      : 'border-amber-600 hover:scale-105 opacity-70'
+                  } ${selectedTeam.length >= 3 && !isSelected ? 'opacity-40 cursor-not-allowed' : ''}`}
+                >
+                  <div className={`${char.gradient} p-4 text-center relative`}>
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg">
+                        ✓
+                      </div>
+                    )}
+                    <div className="text-6xl mb-3">{char.emoji}</div>
+                    <h3 className="text-lg font-bold text-white drop-shadow-lg">
+                      {char.name}
+                    </h3>
+                  </div>
+
+                  <div className="p-4 bg-white">
+                    <div className="space-y-2 mb-3">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold">❤️ HP:</span>
+                        <span className="font-bold text-red-600">{char.hp}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold">⚔️ Атака:</span>
+                        <span className="font-bold text-orange-600">{char.attack}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold">🛡️ Защита:</span>
+                        <span className="font-bold text-blue-600">{char.defense}</span>
+                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-2 rounded-xl border-2 border-purple-300">
+                      <p className="text-xs font-bold text-purple-800">✨ {char.ability}</p>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          <div className="text-center">
+            <Button
+              onClick={startBattle}
+              disabled={selectedTeam.length !== 3}
+              className="h-20 px-12 text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white game-shadow rounded-3xl transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Icon name="Swords" className="mr-3" size={32} />
+              В бой! ({selectedTeam.length}/3)
+            </Button>
+          </div>
         </div>
       )}
 
