@@ -97,10 +97,46 @@ const Index = () => {
       emoji: '🩸',
       energy: 0,
       maxEnergy: 3
+    },
+    {
+      id: 'wizard',
+      name: 'Wizard Cookie',
+      hp: 720,
+      maxHp: 720,
+      attack: 165,
+      defense: 60,
+      ability: 'Magic Burst',
+      abilityDesc: 'Наносит 180% урона всем врагам (AoE атака)',
+      gradient: 'bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600',
+      emoji: '🧙',
+      energy: 0,
+      maxEnergy: 3
+    },
+    {
+      id: 'wind-archer',
+      name: 'Wind Archer',
+      hp: 650,
+      maxHp: 650,
+      attack: 195,
+      defense: 50,
+      ability: 'Wind Shot',
+      abilityDesc: 'Наносит 280% критического урона одной цели',
+      gradient: 'bg-gradient-to-br from-teal-400 via-cyan-500 to-emerald-600',
+      emoji: '🏹',
+      energy: 0,
+      maxEnergy: 3
     }
   ];
 
   const allEnemyTypes: Enemy[] = [
+    {
+      id: 'small-cake',
+      name: 'Small Cake',
+      hp: 140,
+      maxHp: 140,
+      attack: 40,
+      emoji: '🧁'
+    },
     {
       id: 'cake-hound',
       name: 'Cake Hound',
@@ -240,6 +276,21 @@ const Index = () => {
         const vampHeal = Math.floor(actualDamage * 0.5);
         character.hp = Math.min(character.maxHp, character.hp + vampHeal);
         newLog.push(`🩸 ${character.name} использует ${character.ability}! Урон: ${damage}, вампиризм: ${vampHeal} HP!`);
+      } else if (character.id === 'wizard') {
+        const damage = Math.floor(character.attack * 1.8);
+        let totalDamage = 0;
+        newEnemies.forEach(enemy => {
+          if (enemy.hp > 0) {
+            const actualDmg = Math.min(damage, enemy.hp);
+            enemy.hp = Math.max(0, enemy.hp - damage);
+            totalDamage += actualDmg;
+          }
+        });
+        newLog.push(`✨ ${character.name} использует ${character.ability}! AoE урон: ${damage} всем врагам!`);
+      } else if (character.id === 'wind-archer') {
+        const damage = Math.floor(character.attack * 2.8);
+        target.hp = Math.max(0, target.hp - damage);
+        newLog.push(`🏹 ${character.name} использует ${character.ability}! КРИТИЧЕСКИЙ урон: ${damage}!`);
       }
     } else {
       const damage = Math.max(1, Math.floor(character.attack * 0.8));
@@ -337,117 +388,153 @@ const Index = () => {
           </div>
 
           {activeTab === 'characters' && (
-            <div className="grid md:grid-cols-4 gap-6 animate-fade-in">
-              {initialCharacters.map((char) => (
-                <Card
-                  key={char.id}
-                  className="overflow-hidden border-4 border-amber-600 game-shadow hover:scale-105 transition-transform rounded-3xl"
-                >
-                  <div className={`${char.gradient} p-6 text-center`}>
-                    <div className="text-8xl mb-4">{char.emoji}</div>
-                    <h3 className="text-xl font-bold text-white mb-2 drop-shadow-lg">
-                      {char.name}
-                    </h3>
-                  </div>
+            <div className="space-y-6 animate-fade-in">
+              <div className="text-center mb-6">
+                <h2 className="text-4xl font-bold text-amber-800 mb-2">Коллекция героев</h2>
+                <p className="text-lg text-amber-600">Всего персонажей: {initialCharacters.length}</p>
+              </div>
 
-                  <div className="p-6 bg-white">
-                    <div className="space-y-3 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-semibold">❤️ HP:</span>
-                        <span className="font-bold text-red-600">{char.hp}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="font-semibold">⚔️ Атака:</span>
-                        <span className="font-bold text-orange-600">{char.attack}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="font-semibold">🛡️ Защита:</span>
-                        <span className="font-bold text-blue-600">{char.defense}</span>
+              <div className="grid md:grid-cols-3 gap-6">
+                {initialCharacters.map((char) => (
+                  <Card
+                    key={char.id}
+                    className="overflow-hidden border-4 border-amber-600 game-shadow hover:scale-105 transition-all rounded-3xl group"
+                  >
+                    <div className={`${char.gradient} p-8 text-center relative overflow-hidden`}>
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
+                      <div className="text-9xl mb-4 transform group-hover:scale-110 transition-transform">{char.emoji}</div>
+                      <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-lg">
+                        {char.name}
+                      </h3>
+                      <div className="flex justify-center gap-3 text-white/90 text-sm">
+                        <span className="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                          ⚔️ {char.attack}
+                        </span>
+                        <span className="bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                          🛡️ {char.defense}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-3 rounded-2xl border-2 border-purple-300">
-                      <p className="font-bold text-purple-800 mb-1 text-sm">✨ {char.ability}</p>
-                      <p className="text-xs text-purple-700">{char.abilityDesc}</p>
+                    <div className="p-6 bg-white space-y-4">
+                      <div className="bg-gradient-to-r from-red-50 to-orange-50 p-3 rounded-xl border-2 border-red-200">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-red-700">❤️ Здоровье</span>
+                          <span className="text-2xl font-bold text-red-600">{char.hp}</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 p-4 rounded-2xl border-3 border-purple-400">
+                        <div className="flex items-start gap-2 mb-2">
+                          <span className="text-2xl">✨</span>
+                          <div className="flex-1">
+                            <p className="font-bold text-purple-900 text-base mb-1">{char.ability}</p>
+                            <p className="text-sm text-purple-700 leading-relaxed">{char.abilityDesc}</p>
+                          </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t-2 border-purple-300">
+                          <span className="text-xs text-purple-600 font-semibold">⚡ Требует 3 энергии</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
             </div>
           )}
 
           {activeTab === 'battle' && (
-            <div className="max-w-4xl mx-auto animate-fade-in space-y-6">
-              <Card className="p-8 bg-white border-4 border-amber-600 game-shadow rounded-3xl">
-                <h2 className="text-3xl font-bold text-center text-amber-800 mb-4">⚔️ Командный бой 3 на 3</h2>
-                <p className="text-center text-lg text-amber-700 mb-6">
-                  Возьми команду из 3 героев в бой против группы из 3 врагов!
-                </p>
-                
-                <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-2xl border-2 border-red-300 mb-6">
-                  <h3 className="font-bold text-red-800 mb-3 text-center">👹 Возможные враги:</h3>
-                  <div className="grid grid-cols-5 gap-2">
-                    {allEnemyTypes.map((enemy) => (
-                      <div key={enemy.id} className="text-center p-2 bg-white rounded-xl">
-                        <div className="text-3xl mb-1">{enemy.emoji}</div>
-                        <p className="text-xs font-bold text-gray-800">{enemy.name}</p>
-                        <p className="text-xs text-gray-600">HP: {enemy.hp}</p>
-                        <p className="text-xs text-gray-600">ATK: {enemy.attack}</p>
-                      </div>
-                    ))}
+            <div className="max-w-6xl mx-auto animate-fade-in">
+              <div className="text-center mb-8">
+                <h2 className="text-5xl font-bold text-amber-800 mb-3">⚔️ Выбор режима боя</h2>
+                <p className="text-xl text-amber-600">Выбери подходящий режим и вступи в битву!</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8">
+                <Card className="overflow-hidden border-4 border-amber-600 game-shadow hover:scale-105 transition-all rounded-3xl group cursor-pointer">
+                  <div className="bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 p-8 text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
+                    <div className="text-8xl mb-4 transform group-hover:scale-110 transition-transform">👥</div>
+                    <h3 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">Командный бой</h3>
+                    <p className="text-xl text-white/90 font-semibold">3 на 3</p>
                   </div>
-                  <p className="text-center text-sm text-red-700 mt-3 font-semibold">
-                    🎲 В каждом бою появятся 3 случайных врага!
-                  </p>
-                </div>
 
-                <Button
-                  onClick={() => {
-                    setBattleMode('3v3');
-                    setCurrentView('teamSelect');
-                  }}
-                  className="w-full h-20 text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
-                >
-                  <Icon name="Users" className="mr-3" size={32} />
-                  Выбрать команду
-                </Button>
-              </Card>
+                  <div className="p-6 bg-white space-y-4">
+                    <p className="text-center text-lg text-amber-700 font-semibold">
+                      Собери команду из 3 героев для сражения!
+                    </p>
 
-              <Card className="p-8 bg-white border-4 border-purple-600 game-shadow rounded-3xl">
-                <h2 className="text-3xl font-bold text-center text-purple-800 mb-4">🎯 Дуэль 1 на 1</h2>
-                <p className="text-center text-lg text-purple-700 mb-6">
-                  Выбери одного героя для эпической дуэли против случайного врага!
-                </p>
-                
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-2xl border-2 border-purple-300 mb-6">
-                  <h3 className="font-bold text-purple-800 mb-3 text-center">⚡ Особенности дуэли:</h3>
-                  <ul className="space-y-2 text-sm text-purple-700">
-                    <li className="flex items-center justify-center">
-                      <span className="text-lg mr-2">🎲</span>
-                      <span>Один случайный враг из всех доступных</span>
-                    </li>
-                    <li className="flex items-center justify-center">
-                      <span className="text-lg mr-2">⚔️</span>
-                      <span>Решающее сражение один на один</span>
-                    </li>
-                    <li className="flex items-center justify-center">
-                      <span className="text-lg mr-2">🏆</span>
-                      <span>Проверь силу своего любимого героя</span>
-                    </li>
-                  </ul>
-                </div>
+                    <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-2xl border-2 border-red-300">
+                      <h4 className="font-bold text-red-800 mb-3 text-center text-sm">👹 Враги ({allEnemyTypes.length} типов):</h4>
+                      <div className="grid grid-cols-6 gap-2">
+                        {allEnemyTypes.map((enemy) => (
+                          <div key={enemy.id} className="text-center">
+                            <div className="text-3xl">{enemy.emoji}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-center text-xs text-red-700 mt-2 font-semibold">
+                        🎲 3 случайных врага в бою
+                      </p>
+                    </div>
 
-                <Button
-                  onClick={() => {
-                    setBattleMode('1v1');
-                    setCurrentView('heroSelect');
-                  }}
-                  className="w-full h-20 text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white game-shadow rounded-3xl transition-transform hover:scale-105"
-                >
-                  <Icon name="User" className="mr-3" size={32} />
-                  Выбрать героя
-                </Button>
-              </Card>
+                    <Button
+                      onClick={() => {
+                        setBattleMode('3v3');
+                        setCurrentView('teamSelect');
+                      }}
+                      className="w-full h-16 text-xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white game-shadow rounded-2xl transition-transform hover:scale-105"
+                    >
+                      <Icon name="Users" className="mr-3" size={28} />
+                      Выбрать команду
+                    </Button>
+                  </div>
+                </Card>
+
+                <Card className="overflow-hidden border-4 border-purple-600 game-shadow hover:scale-105 transition-all rounded-3xl group cursor-pointer">
+                  <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 p-8 text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
+                    <div className="text-8xl mb-4 transform group-hover:scale-110 transition-transform">🎯</div>
+                    <h3 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">Дуэль</h3>
+                    <p className="text-xl text-white/90 font-semibold">1 на 1</p>
+                  </div>
+
+                  <div className="p-6 bg-white space-y-4">
+                    <p className="text-center text-lg text-purple-700 font-semibold">
+                      Один герой против одного врага!
+                    </p>
+
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-2xl border-2 border-purple-300">
+                      <h4 className="font-bold text-purple-800 mb-3 text-center">⚡ Особенности:</h4>
+                      <ul className="space-y-2 text-sm text-purple-700">
+                        <li className="flex items-center">
+                          <span className="text-lg mr-2">🎲</span>
+                          <span>Случайный враг из {allEnemyTypes.length} типов</span>
+                        </li>
+                        <li className="flex items-center">
+                          <span className="text-lg mr-2">⚔️</span>
+                          <span>Эпическое сражение 1 на 1</span>
+                        </li>
+                        <li className="flex items-center">
+                          <span className="text-lg mr-2">🏆</span>
+                          <span>Проверь силу героя</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <Button
+                      onClick={() => {
+                        setBattleMode('1v1');
+                        setCurrentView('heroSelect');
+                      }}
+                      className="w-full h-16 text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white game-shadow rounded-2xl transition-transform hover:scale-105"
+                    >
+                      <Icon name="User" className="mr-3" size={28} />
+                      Выбрать героя
+                    </Button>
+                  </div>
+                </Card>
+              </div>
             </div>
           )}
         </div>
@@ -473,7 +560,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
             {initialCharacters.map((char) => {
               const isSelected = selectedHero === char.id;
               return (
@@ -555,7 +642,7 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
             {initialCharacters.map((char) => {
               const isSelected = selectedTeam.includes(char.id);
               return (
