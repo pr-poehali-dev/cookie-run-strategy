@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Character, Enemy, ViewType, BattleMode, TabType } from '@/types/game';
@@ -24,10 +24,24 @@ const Index = () => {
   const [selectedHero, setSelectedHero] = useState<string | null>(null);
   const [battleMode, setBattleMode] = useState<BattleMode>('3v3');
   const [bossTeamSize, setBossTeamSize] = useState<number>(3);
-  const [coins, setCoins] = useState(0);
-  const [ownedCharacters, setOwnedCharacters] = useState<string[]>(['gingerbrave']);
+  const [coins, setCoins] = useState(() => {
+    const saved = localStorage.getItem('cookierun-coins');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [ownedCharacters, setOwnedCharacters] = useState<string[]>(() => {
+    const saved = localStorage.getItem('cookierun-owned');
+    return saved ? JSON.parse(saved) : ['gingerbrave'];
+  });
   const [team, setTeam] = useState<Character[]>(initialCharacters);
   const [enemies, setEnemies] = useState<Enemy[]>(getRandomEnemies());
+
+  useEffect(() => {
+    localStorage.setItem('cookierun-coins', coins.toString());
+  }, [coins]);
+
+  useEffect(() => {
+    localStorage.setItem('cookierun-owned', JSON.stringify(ownedCharacters));
+  }, [ownedCharacters]);
 
   const startBattle = () => {
     if (selectedTeam.length !== 3) {
