@@ -72,11 +72,20 @@ export const performEnemyTurn = (
   }
 
   aliveEnemies.forEach(enemy => {
+    if (aliveHeroes.length === 0) return;
     const targetIndex = Math.floor(Math.random() * aliveHeroes.length);
     const target = aliveHeroes[targetIndex];
+    if (!target) return;
     const damage = Math.max(1, enemy.attack - Math.floor(target.defense * 0.3));
     target.hp = Math.max(0, target.hp - damage);
     newLog.push(`${enemy.emoji} ${enemy.name} атакует ${target.name}! Урон: ${damage}`);
+    
+    if (target.hp === 0) {
+      const heroIndex = aliveHeroes.indexOf(target);
+      if (heroIndex !== -1) {
+        aliveHeroes.splice(heroIndex, 1);
+      }
+    }
   });
 
   return newLog;

@@ -30,7 +30,13 @@ const Index = () => {
   const [enemies, setEnemies] = useState<Enemy[]>(getRandomEnemies());
 
   const startBattle = () => {
+    if (selectedTeam.length !== 3) {
+      return;
+    }
     const selectedChars = initialCharacters.filter(c => selectedTeam.includes(c.id));
+    if (selectedChars.length !== 3) {
+      return;
+    }
     setTeam(JSON.parse(JSON.stringify(selectedChars)));
     const randomEnemies = getRandomEnemies();
     setEnemies(randomEnemies);
@@ -44,9 +50,13 @@ const Index = () => {
   };
 
   const startDuel = () => {
-    if (!selectedHero) return;
+    if (!selectedHero) {
+      return;
+    }
     const hero = initialCharacters.find(c => c.id === selectedHero);
-    if (!hero) return;
+    if (!hero) {
+      return;
+    }
     
     setTeam([JSON.parse(JSON.stringify(hero))]);
     const randomEnemy = getRandomEnemy();
@@ -61,7 +71,13 @@ const Index = () => {
   };
 
   const startBossBattle = () => {
+    if (selectedTeam.length === 0) {
+      return;
+    }
     const selectedChars = initialCharacters.filter(c => selectedTeam.includes(c.id));
+    if (selectedChars.length === 0) {
+      return;
+    }
     setTeam(JSON.parse(JSON.stringify(selectedChars)));
     const boss = getRandomBoss();
     setEnemies([boss]);
@@ -83,6 +99,10 @@ const Index = () => {
     const character = newTeam[selectedCharIndex];
     const target = newEnemies[selectedTarget];
     const newLog = [...battleLog];
+
+    if (!character || !target) {
+      return;
+    }
 
     if (character.hp <= 0) {
       newLog.push(`${character.name} не может атаковать!`);
@@ -136,6 +156,15 @@ const Index = () => {
   };
 
   const enemyTurn = (currentTeam: Character[], currentEnemies: Enemy[], currentLog: string[]) => {
+    if (!battleActive) {
+      return;
+    }
+    
+    const aliveEnemies = currentEnemies.filter(e => e.hp > 0);
+    if (aliveEnemies.length === 0) {
+      return;
+    }
+    
     const newLog = performEnemyTurn(currentTeam, currentEnemies, currentLog);
     
     setTeam([...currentTeam]);
@@ -165,11 +194,14 @@ const Index = () => {
 
   const handleSelectMode = (mode: BattleMode) => {
     setBattleMode(mode);
+    setSelectedTeam([]);
+    setSelectedHero(null);
     if (mode === '3v3') {
       setCurrentView('teamSelect');
     } else if (mode === '1v1') {
       setCurrentView('heroSelect');
     } else if (mode === 'boss') {
+      setBossTeamSize(3);
       setCurrentView('bossTeamSelect');
     }
   };
@@ -259,7 +291,10 @@ const Index = () => {
           selectedHero={selectedHero}
           onSelectHero={setSelectedHero}
           onStartDuel={startDuel}
-          onBack={() => setCurrentView('menu')}
+          onBack={() => {
+            setSelectedHero(null);
+            setCurrentView('menu');
+          }}
         />
       )}
 
@@ -270,7 +305,10 @@ const Index = () => {
           selectedTeam={selectedTeam}
           onToggleCharacter={handleToggleTeamCharacter}
           onStartBattle={startBattle}
-          onBack={() => setCurrentView('menu')}
+          onBack={() => {
+            setSelectedTeam([]);
+            setCurrentView('menu');
+          }}
         />
       )}
 
@@ -283,7 +321,10 @@ const Index = () => {
           onToggleCharacter={handleToggleBossTeamCharacter}
           onSetTeamSize={handleSetBossTeamSize}
           onStartBossBattle={startBossBattle}
-          onBack={() => setCurrentView('menu')}
+          onBack={() => {
+            setSelectedTeam([]);
+            setCurrentView('menu');
+          }}
         />
       )}
 
@@ -301,8 +342,10 @@ const Index = () => {
           onPerformAction={performAction}
           onStartBattle={startBattle}
           onExit={() => {
-            setCurrentView('menu');
+            setSelectedTeam([]);
+            setSelectedHero(null);
             setBattleActive(false);
+            setCurrentView('menu');
           }}
         />
       )}

@@ -121,12 +121,15 @@ export const BossTeamSelection = ({
       <div className="text-center">
         <Button
           onClick={onStartBossBattle}
-          disabled={selectedTeam.length === 0 || selectedTeam.length > teamSize}
+          disabled={selectedTeam.length === 0 || selectedTeam.length < 1 || selectedTeam.length > teamSize}
           className="h-20 px-12 text-2xl font-bold bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white game-shadow rounded-3xl transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Icon name="Skull" className="mr-3" size={32} />
           К боссу! ({selectedTeam.length}/{teamSize})
         </Button>
+        {selectedTeam.length === 0 && (
+          <p className="mt-3 text-red-600 font-semibold">Выбери минимум 1 героя для боя!</p>
+        )}
       </div>
     </div>
   );
