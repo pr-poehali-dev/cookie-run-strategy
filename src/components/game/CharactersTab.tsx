@@ -21,7 +21,8 @@ export const CharactersTab = ({ characters, ownedCharacters, coins, onBuyCharact
       <div className="grid md:grid-cols-5 gap-4">
         {characters.map((char) => {
           const isOwned = ownedCharacters.includes(char.id);
-          const canBuy = !isOwned && coins >= 100;
+          const price = char.id === 'metal-knight' ? 200 : 100;
+          const canBuy = !isOwned && coins >= price;
           
           return (
             <Card
@@ -88,7 +89,7 @@ export const CharactersTab = ({ characters, ownedCharacters, coins, onBuyCharact
                     }`}
                   >
                     <Icon name="ShoppingCart" className="mr-1" size={14} />
-                    {canBuy ? '100 💰' : `100 💰`}
+                    {price} 💰
                   </Button>
                 )}
 

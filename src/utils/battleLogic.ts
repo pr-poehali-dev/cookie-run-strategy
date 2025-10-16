@@ -26,12 +26,16 @@ export const performCharacterAbility = (
     });
     newLog.push(`💚 ${character.name} использует ${character.ability}! Команда восстановила ${heal} HP!`);
   } else if (character.id === 'red-velvet') {
-    const damage = Math.floor(character.attack * 2.2);
+    const damage = Math.floor(character.attack * 2.0);
     const actualDamage = Math.min(damage, target.hp);
     target.hp = Math.max(0, target.hp - damage);
     const vampHeal = Math.floor(actualDamage * 0.5);
     character.hp = Math.min(character.maxHp, character.hp + vampHeal);
     newLog.push(`🩸 ${character.name} использует ${character.ability}! Урон: ${damage}, вампиризм: ${vampHeal} HP!`);
+  } else if (character.id === 'metal-knight') {
+    const damage = Math.floor(character.attack * 2.5);
+    target.hp = Math.max(0, target.hp - damage);
+    newLog.push(`⚔️ ${character.name} использует ${character.ability}! Мощный удар: ${damage}!`);
   } else if (character.id === 'wizard') {
     const damage = Math.floor(character.attack * 1.5);
     newEnemies.forEach(enemy => {

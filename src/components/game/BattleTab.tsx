@@ -6,10 +6,11 @@ import { Enemy } from '@/types/game';
 interface BattleTabProps {
   allEnemyTypes: Enemy[];
   bossTypes: Enemy[];
-  onSelectMode: (mode: '3v3' | '1v1' | 'boss') => void;
+  extremeBoss: Enemy;
+  onSelectMode: (mode: '3v3' | '1v1' | 'boss' | 'extreme') => void;
 }
 
-export const BattleTab = ({ allEnemyTypes, bossTypes, onSelectMode }: BattleTabProps) => {
+export const BattleTab = ({ allEnemyTypes, bossTypes, extremeBoss, onSelectMode }: BattleTabProps) => {
   return (
     <div className="max-w-7xl mx-auto animate-fade-in">
       <div className="text-center mb-6">
@@ -17,7 +18,7 @@ export const BattleTab = ({ allEnemyTypes, bossTypes, onSelectMode }: BattleTabP
         <p className="text-lg text-amber-600">Выбери подходящий режим и вступи в битву!</p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-4 gap-4">
         <Card className="overflow-hidden border-3 border-amber-600 game-shadow hover:scale-105 transition-all rounded-2xl group cursor-pointer">
           <div className="bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 p-4 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
@@ -128,6 +129,46 @@ export const BattleTab = ({ allEnemyTypes, bossTypes, onSelectMode }: BattleTabP
               className="w-full h-10 text-sm font-bold bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white game-shadow rounded-xl transition-transform hover:scale-105"
             >
               <Icon name="Skull" className="mr-1" size={16} />
+              Выбрать
+            </Button>
+          </div>
+        </Card>
+
+        <Card className="overflow-hidden border-3 border-cyan-600 game-shadow hover:scale-105 transition-all rounded-2xl group cursor-pointer">
+          <div className="bg-gradient-to-br from-cyan-600 via-sky-500 to-blue-600 p-4 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
+            <div className="text-5xl mb-2 transform group-hover:scale-110 transition-transform">⚡</div>
+            <h3 className="text-base font-bold text-white mb-1 drop-shadow-lg">Экстрим</h3>
+            <p className="text-sm text-white/90 font-semibold">1-3 vs Титан</p>
+          </div>
+
+          <div className="p-3 bg-white space-y-2">
+            <p className="text-center text-xs text-cyan-700 font-semibold">
+              1-3 героя против легендарного босса
+            </p>
+
+            <div className="bg-gradient-to-r from-cyan-50 to-sky-50 p-2 rounded-xl border border-cyan-300">
+              <div className="text-center bg-cyan-100 p-2 rounded-lg border border-cyan-400">
+                <div className="text-3xl mb-1">{extremeBoss.emoji}</div>
+                <p className="text-xs font-bold text-cyan-900 leading-tight">{extremeBoss.name}</p>
+                <div className="flex justify-center gap-2 mt-1 text-xs">
+                  <span className="text-red-700">❤️ {extremeBoss.hp}</span>
+                  <span className="text-orange-700">⚔️ {extremeBoss.attack}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 p-1.5 rounded-lg border border-yellow-400">
+              <p className="text-center text-xs font-bold text-amber-800">
+                💰 100 монет
+              </p>
+            </div>
+
+            <Button
+              onClick={() => onSelectMode('extreme')}
+              className="w-full h-10 text-sm font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white game-shadow rounded-xl transition-transform hover:scale-105"
+            >
+              <Icon name="Zap" className="mr-1" size={16} />
               Выбрать
             </Button>
           </div>

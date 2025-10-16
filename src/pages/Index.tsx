@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Character, Enemy, ViewType, BattleMode, TabType } from '@/types/game';
-import { initialCharacters, allEnemyTypes, bossTypes, getRandomEnemies, getRandomEnemy, getRandomBoss } from '@/data/characters';
+import { initialCharacters, allEnemyTypes, bossTypes, extremeBoss, getRandomEnemies, getRandomEnemy, getRandomBoss } from '@/data/characters';
 import { CharactersTab } from '@/components/game/CharactersTab';
 import { BattleTab } from '@/components/game/BattleTab';
 import { TeamSelection } from '@/components/game/TeamSelection';
@@ -104,6 +104,25 @@ const Index = () => {
     setCurrentView('bossBattle');
   };
 
+  const startExtremeBattle = () => {
+    if (selectedTeam.length === 0) {
+      return;
+    }
+    const selectedChars = initialCharacters.filter(c => selectedTeam.includes(c.id));
+    if (selectedChars.length === 0) {
+      return;
+    }
+    setTeam(JSON.parse(JSON.stringify(selectedChars)));
+    setEnemies([JSON.parse(JSON.stringify(extremeBoss))]);
+    setEnergy(selectedChars.map(() => 0));
+    setBattleLog([`⚡ ЭКСТРИМ БОЙ! ${selectedChars.map(c => c.name).join(', ')} против легендарного ${extremeBoss.name}!`]);
+    setCurrentTurn(0);
+    setBattleActive(true);
+    setSelectedCharIndex(null);
+    setSelectedTarget(null);
+    setCurrentView('extremeBattle');
+  };
+
   const performAction = (useAbility: boolean) => {
     if (selectedCharIndex === null || selectedTarget === null || !battleActive) return;
 
@@ -152,10 +171,13 @@ const Index = () => {
     if (aliveEnemies.length === 0) {
       const defeatedCount = newEnemies.length;
       const isBossBattle = currentView === 'bossBattle';
-      const earnedCoins = isBossBattle ? 50 : defeatedCount * 20;
+      const isExtremeBattle = currentView === 'extremeBattle';
+      const earnedCoins = isExtremeBattle ? 100 : (isBossBattle ? 50 : defeatedCount * 20);
       setCoins(coins + earnedCoins);
       newLog.push(`🎉 ПОБЕДА! Все враги повержены!`);
-      if (isBossBattle) {
+      if (isExtremeBattle) {
+        newLog.push(`⚡ ТИТАН НЕБЕС ПОВЕРЖЁН!`);
+      } else if (isBossBattle) {
         newLog.push(`💀 БОСС ПОВЕРЖЁН!`);
       }
       newLog.push(`💰 Получено монет: ${earnedCoins}`);
@@ -192,9 +214,10 @@ const Index = () => {
 
   const buyCharacter = (charId: string) => {
     if (ownedCharacters.includes(charId)) return;
-    if (coins < 100) return;
+    const price = charId === 'metal-knight' ? 200 : 100;
+    if (coins < price) return;
     
-    setCoins(coins - 100);
+    setCoins(coins - price);
     setOwnedCharacters([...ownedCharacters, charId]);
   };
 
@@ -217,6 +240,9 @@ const Index = () => {
     } else if (mode === 'boss') {
       setBossTeamSize(3);
       setCurrentView('bossTeamSelect');
+    } else if (mode === 'extreme') {
+      setBossTeamSize(3);
+      setCurrentView('extremeTeamSelect');
     }
   };
 
@@ -292,6 +318,7 @@ const Index = () => {
             <BattleTab
               allEnemyTypes={allEnemyTypes}
               bossTypes={bossTypes}
+              extremeBoss={extremeBoss}
               onSelectMode={handleSelectMode}
             />
           )}
@@ -342,7 +369,23 @@ const Index = () => {
         />
       )}
 
-      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle') && (
+      {currentView === 'extremeTeamSelect' && (
+        <BossTeamSelection
+          characters={initialCharacters}
+          ownedCharacters={ownedCharacters}
+          selectedTeam={selectedTeam}
+          teamSize={bossTeamSize}
+          onToggleCharacter={handleToggleBossTeamCharacter}
+          onSetTeamSize={handleSetBossTeamSize}
+          onStartBossBattle={startExtremeBattle}
+          onBack={() => {
+            setSelectedTeam([]);
+            setCurrentView('menu');
+          }}
+        />
+      )}
+
+      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle' || currentView === 'extremeBattle') && (
         <BattleScene
           team={team}
           enemies={enemies}

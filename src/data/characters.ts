@@ -46,12 +46,12 @@ export const initialCharacters: Character[] = [
   {
     id: 'red-velvet',
     name: 'Red Velvet',
-    hp: 880,
-    maxHp: 880,
+    hp: 750,
+    maxHp: 750,
     attack: 155,
     defense: 75,
     ability: 'Vampire Strike',
-    abilityDesc: 'Наносит 220% урона и крадёт 50% нанесённого урона как HP',
+    abilityDesc: 'Наносит 200% урона и крадёт 50% нанесённого урона как HP',
     gradient: 'bg-gradient-to-br from-red-600 to-red-900',
     emoji: '🩸',
     energy: 0,
@@ -110,6 +110,20 @@ export const initialCharacters: Character[] = [
     abilityDesc: 'Наносит 120% урона всем врагам и лечит команду на 50% от урона',
     gradient: 'bg-gradient-to-br from-gray-700 via-purple-900 to-indigo-900',
     emoji: '🐺',
+    energy: 0,
+    maxEnergy: 3
+  },
+  {
+    id: 'metal-knight',
+    name: 'Metal Knight Cookie',
+    hp: 630,
+    maxHp: 630,
+    attack: 120,
+    defense: 30,
+    ability: 'Steel Strike',
+    abilityDesc: 'Наносит 250% урона одному врагу (требует 3 энергии)',
+    gradient: 'bg-gradient-to-br from-gray-400 via-slate-500 to-zinc-600',
+    emoji: '⚔️',
     energy: 0,
     maxEnergy: 3
   }
@@ -205,6 +219,15 @@ export const bossTypes: Enemy[] = [
     emoji: '💀'
   }
 ];
+
+export const extremeBoss: Enemy = {
+  id: 'sky-titan',
+  name: 'Титан Небес',
+  hp: 3000,
+  maxHp: 3000,
+  attack: 140,
+  emoji: '⚡'
+};
 
 export const getRandomBoss = (): Enemy => {
   const randomIndex = Math.floor(Math.random() * bossTypes.length);
