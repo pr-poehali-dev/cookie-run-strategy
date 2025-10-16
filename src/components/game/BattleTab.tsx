@@ -6,7 +6,7 @@ import { Enemy } from '@/types/game';
 interface BattleTabProps {
   allEnemyTypes: Enemy[];
   bossTypes: Enemy[];
-  onSelectMode: (mode: '3v3' | '1v1' | 'boss' | 'survival' | 'arena') => void;
+  onSelectMode: (mode: '3v3' | '1v1' | 'boss') => void;
 }
 
 export const BattleTab = ({ allEnemyTypes, bossTypes, onSelectMode }: BattleTabProps) => {
@@ -17,7 +17,7 @@ export const BattleTab = ({ allEnemyTypes, bossTypes, onSelectMode }: BattleTabP
         <p className="text-lg text-amber-600">Выбери подходящий режим и вступи в битву!</p>
       </div>
 
-      <div className="grid md:grid-cols-5 gap-4">
+      <div className="grid md:grid-cols-3 gap-4">
         <Card className="overflow-hidden border-3 border-amber-600 game-shadow hover:scale-105 transition-all rounded-2xl group cursor-pointer">
           <div className="bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 p-4 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
@@ -129,86 +129,6 @@ export const BattleTab = ({ allEnemyTypes, bossTypes, onSelectMode }: BattleTabP
             >
               <Icon name="Skull" className="mr-1" size={16} />
               Выбрать
-            </Button>
-          </div>
-        </Card>
-
-        <Card className="overflow-hidden border-3 border-green-600 game-shadow hover:scale-105 transition-all rounded-2xl group cursor-pointer">
-          <div className="bg-gradient-to-br from-green-600 via-emerald-500 to-teal-600 p-4 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-            <div className="text-5xl mb-2 transform group-hover:scale-110 transition-transform">🌊</div>
-            <h3 className="text-base font-bold text-white mb-1 drop-shadow-lg">Выживание</h3>
-            <p className="text-sm text-white/90 font-semibold">Волны</p>
-          </div>
-
-          <div className="p-3 bg-white space-y-2">
-            <p className="text-center text-xs text-green-700 font-semibold">
-              Отбивайся от волн врагов
-            </p>
-
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-2 rounded-xl border border-green-300">
-              <ul className="space-y-1 text-xs text-green-700">
-                <li className="flex items-center">
-                  <span className="text-sm mr-1">🌊</span>
-                  <span>Бесконечные волны</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="text-sm mr-1">📈</span>
-                  <span>Враги сильнее</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="text-sm mr-1">🏆</span>
-                  <span>Рекорд волн</span>
-                </li>
-              </ul>
-            </div>
-
-            <Button
-              onClick={() => onSelectMode('survival')}
-              className="w-full h-10 text-sm font-bold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white game-shadow rounded-xl transition-transform hover:scale-105"
-            >
-              <Icon name="Waves" className="mr-1" size={16} />
-              Скоро
-            </Button>
-          </div>
-        </Card>
-
-        <Card className="overflow-hidden border-3 border-blue-600 game-shadow hover:scale-105 transition-all rounded-2xl group cursor-pointer">
-          <div className="bg-gradient-to-br from-blue-600 via-indigo-500 to-purple-600 p-4 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
-            <div className="text-5xl mb-2 transform group-hover:scale-110 transition-transform">🏟️</div>
-            <h3 className="text-base font-bold text-white mb-1 drop-shadow-lg">Арена</h3>
-            <p className="text-sm text-white/90 font-semibold">PvP</p>
-          </div>
-
-          <div className="p-3 bg-white space-y-2">
-            <p className="text-center text-xs text-blue-700 font-semibold">
-              Сражайся с другими игроками
-            </p>
-
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-2 rounded-xl border border-blue-300">
-              <ul className="space-y-1 text-xs text-blue-700">
-                <li className="flex items-center">
-                  <span className="text-sm mr-1">⚔️</span>
-                  <span>Команда vs Команда</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="text-sm mr-1">🏅</span>
-                  <span>Рейтинг арены</span>
-                </li>
-                <li className="flex items-center">
-                  <span className="text-sm mr-1">🎁</span>
-                  <span>Эксклюзивные награды</span>
-                </li>
-              </ul>
-            </div>
-
-            <Button
-              onClick={() => onSelectMode('arena')}
-              className="w-full h-10 text-sm font-bold bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white game-shadow rounded-xl transition-transform hover:scale-105"
-            >
-              <Icon name="Trophy" className="mr-1" size={16} />
-              Скоро
             </Button>
           </div>
         </Card>
