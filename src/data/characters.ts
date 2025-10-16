@@ -23,11 +23,11 @@ export const initialCharacters: Character[] = [
     attack: 140,
     defense: 65,
     ability: 'Dark Deceit',
-    abilityDesc: 'Наносит 250% урона (требует 5 энергии)',
+    abilityDesc: 'Наносит 200% урона (требует 3 энергии)',
     gradient: 'shadow-gradient',
     emoji: '🌑',
     energy: 0,
-    maxEnergy: 5
+    maxEnergy: 3
   },
   {
     id: 'strawberry',
@@ -79,11 +79,11 @@ export const initialCharacters: Character[] = [
     attack: 195,
     defense: 50,
     ability: 'Wind Shot',
-    abilityDesc: 'Наносит 280% критического урона одной цели (требует 5 энергии)',
+    abilityDesc: 'Наносит 240% критического урона одной цели (требует 3 энергии)',
     gradient: 'bg-gradient-to-br from-teal-400 via-cyan-500 to-emerald-600',
     emoji: '🏹',
     energy: 0,
-    maxEnergy: 5
+    maxEnergy: 3
   },
   {
     id: 'sea-fairy',

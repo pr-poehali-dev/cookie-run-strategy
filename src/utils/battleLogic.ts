@@ -14,7 +14,7 @@ export const performCharacterAbility = (
     character.hp = Math.min(character.maxHp, character.hp + heal);
     newLog.push(`💥 ${character.name} использует ${character.ability}! Урон: ${damage}, HP+${heal}`);
   } else if (character.id === 'shadow-milk') {
-    const damage = Math.floor(character.attack * 2.5);
+    const damage = Math.floor(character.attack * 2.0);
     target.hp = Math.max(0, target.hp - damage);
     newLog.push(`🌟 ${character.name} использует ${character.ability}! Критический урон: ${damage}!`);
   } else if (character.id === 'strawberry') {
@@ -41,7 +41,7 @@ export const performCharacterAbility = (
     });
     newLog.push(`✨ ${character.name} использует ${character.ability}! AoE урон: ${damage} всем врагам!`);
   } else if (character.id === 'wind-archer') {
-    const damage = Math.floor(character.attack * 2.8);
+    const damage = Math.floor(character.attack * 2.4);
     target.hp = Math.max(0, target.hp - damage);
     newLog.push(`🏹 ${character.name} использует ${character.ability}! КРИТИЧЕСКИЙ урон: ${damage}!`);
   } else if (character.id === 'sea-fairy') {
