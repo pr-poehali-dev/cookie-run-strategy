@@ -22,6 +22,6 @@ export interface Enemy {
   emoji: string;
 }
 
-export type ViewType = 'menu' | 'characters' | 'teamSelect' | 'heroSelect' | 'battle' | 'duel' | 'bossTeamSelect' | 'bossBattle';
-export type BattleMode = '3v3' | '1v1' | 'boss';
+export type ViewType = 'menu' | 'characters' | 'teamSelect' | 'heroSelect' | 'battle' | 'duel' | 'bossTeamSelect' | 'bossBattle' | 'survivalSelect' | 'survival' | 'arenaSelect' | 'arena';
+export type BattleMode = '3v3' | '1v1' | 'boss' | 'survival' | 'arena';
 export type TabType = 'characters' | 'battle';
