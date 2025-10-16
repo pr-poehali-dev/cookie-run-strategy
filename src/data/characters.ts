@@ -60,12 +60,12 @@ export const initialCharacters: Character[] = [
   {
     id: 'wizard',
     name: 'Wizard Cookie',
-    hp: 720,
-    maxHp: 720,
+    hp: 570,
+    maxHp: 570,
     attack: 165,
     defense: 60,
     ability: 'Magic Burst',
-    abilityDesc: 'Наносит 180% урона всем врагам (AoE атака)',
+    abilityDesc: 'Наносит 150% урона всем врагам (AoE атака)',
     gradient: 'bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600',
     emoji: '🧙',
     energy: 0,
@@ -96,6 +96,20 @@ export const initialCharacters: Character[] = [
     abilityDesc: 'Наносит 120% урона всем врагам (AoE атака)',
     gradient: 'bg-gradient-to-br from-blue-400 via-cyan-300 to-teal-400',
     emoji: '🧚',
+    energy: 0,
+    maxEnergy: 3
+  },
+  {
+    id: 'werewolf',
+    name: 'Werewolf Cookie',
+    hp: 600,
+    maxHp: 600,
+    attack: 95,
+    defense: 55,
+    ability: 'Howling Heal',
+    abilityDesc: 'Наносит 120% урона всем врагам и лечит команду на 50% от урона',
+    gradient: 'bg-gradient-to-br from-gray-700 via-purple-900 to-indigo-900',
+    emoji: '🐺',
     energy: 0,
     maxEnergy: 3
   }

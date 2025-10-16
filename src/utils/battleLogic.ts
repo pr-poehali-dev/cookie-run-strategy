@@ -33,7 +33,7 @@ export const performCharacterAbility = (
     character.hp = Math.min(character.maxHp, character.hp + vampHeal);
     newLog.push(`🩸 ${character.name} использует ${character.ability}! Урон: ${damage}, вампиризм: ${vampHeal} HP!`);
   } else if (character.id === 'wizard') {
-    const damage = Math.floor(character.attack * 1.8);
+    const damage = Math.floor(character.attack * 1.5);
     newEnemies.forEach(enemy => {
       if (enemy.hp > 0) {
         enemy.hp = Math.max(0, enemy.hp - damage);
@@ -54,6 +54,23 @@ export const performCharacterAbility = (
       }
     });
     newLog.push(`🌊 ${character.name} использует ${character.ability}! Урон ${damage} всем врагам (${enemiesHit} целей)!`);
+  } else if (character.id === 'werewolf') {
+    const damage = Math.floor(character.attack * 1.2);
+    let totalDamageDealt = 0;
+    newEnemies.forEach(enemy => {
+      if (enemy.hp > 0) {
+        const actualDamage = Math.min(damage, enemy.hp);
+        enemy.hp = Math.max(0, enemy.hp - damage);
+        totalDamageDealt += actualDamage;
+      }
+    });
+    const healAmount = Math.floor(totalDamageDealt * 0.5);
+    newTeam.forEach(char => {
+      if (char.hp > 0) {
+        char.hp = Math.min(char.maxHp, char.hp + healAmount);
+      }
+    });
+    newLog.push(`🐺 ${character.name} использует ${character.ability}! Урон: ${damage} всем врагам, команда восстановила ${healAmount} HP!`);
   }
 };
 
