@@ -21,7 +21,7 @@ export const CharactersTab = ({ characters, ownedCharacters, coins, onBuyCharact
       <div className="grid md:grid-cols-5 gap-4">
         {characters.map((char) => {
           const isOwned = ownedCharacters.includes(char.id);
-          const price = ['metal-knight', 'pale-lily', 'pale-garden-guard'].includes(char.id) ? 200 : 100;
+          const price = ['metal-knight', 'pale-lily', 'pale-garden-guard', 'herb'].includes(char.id) ? 200 : 100;
           const canBuy = !isOwned && coins >= price;
           
           return (

@@ -11,6 +11,8 @@ export interface Character {
   emoji: string;
   energy: number;
   maxEnergy: number;
+  regenTurns?: number;
+  regenAmount?: number;
 }
 
 export interface Enemy {

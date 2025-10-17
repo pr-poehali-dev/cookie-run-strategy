@@ -9,7 +9,7 @@ import { TeamSelection } from '@/components/game/TeamSelection';
 import { HeroSelection } from '@/components/game/HeroSelection';
 import { BattleScene } from '@/components/game/BattleScene';
 import { BossTeamSelection } from '@/components/game/BossTeamSelection';
-import { performCharacterAbility, performEnemyTurn } from '@/utils/battleLogic';
+import { performCharacterAbility, performEnemyTurn, applyRegeneration } from '@/utils/battleLogic';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<ViewType>('menu');
@@ -210,7 +210,12 @@ const Index = () => {
     }
 
     setTimeout(() => {
-      enemyTurn(newTeam, newEnemies, newLog);
+      applyRegeneration(newTeam, newLog);
+      setTeam([...newTeam]);
+      setBattleLog(newLog);
+      setTimeout(() => {
+        enemyTurn(newTeam, newEnemies, newLog);
+      }, 500);
     }, 1000);
   };
 
@@ -237,7 +242,7 @@ const Index = () => {
 
   const buyCharacter = (charId: string) => {
     if (ownedCharacters.includes(charId)) return;
-    const price = ['metal-knight', 'pale-lily', 'pale-garden-guard'].includes(charId) ? 200 : 100;
+    const price = ['metal-knight', 'pale-lily', 'pale-garden-guard', 'herb'].includes(charId) ? 200 : 100;
     if (coins < price) return;
     
     setCoins(coins - price);

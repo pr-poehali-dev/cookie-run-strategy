@@ -80,6 +80,13 @@ export const BattleScene = ({
                         </div>
                         <Progress value={(energy[index] / char.maxEnergy) * 100} className="h-2 bg-yellow-200" />
                       </div>
+                      {char.regenTurns && char.regenTurns > 0 && (
+                        <div className="bg-green-100 p-1 rounded border border-green-400">
+                          <p className="text-xs font-bold text-green-800 text-center">
+                            🌿 Регенерация: {char.regenTurns} ходов
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

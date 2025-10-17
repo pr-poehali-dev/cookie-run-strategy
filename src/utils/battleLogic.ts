@@ -93,6 +93,35 @@ export const performCharacterAbility = (
     const heal = 100;
     character.hp = Math.min(character.maxHp, character.hp + heal);
     newLog.push(`🛡️ ${character.name} использует ${character.ability}! Урон ${damage} всем врагам, восстановлено ${heal} HP!`);
+  } else if (character.id === 'herb') {
+    const hasActiveRegen = newTeam.some(char => char.regenTurns && char.regenTurns > 0);
+    if (hasActiveRegen) {
+      newLog.push(`🌿 ${character.name} не может использовать способность - регенерация уже активна!`);
+      return;
+    }
+    newTeam.forEach(char => {
+      char.regenTurns = 3;
+      char.regenAmount = 130;
+    });
+    newLog.push(`🌿 ${character.name} использует ${character.ability}! Регенерация активирована на 3 хода (+130 HP/ход)!`);
+  }
+};
+
+export const applyRegeneration = (team: Character[], log: string[]): void => {
+  team.forEach(char => {
+    if (char.regenTurns && char.regenTurns > 0 && char.hp > 0) {
+      const healAmount = char.regenAmount || 0;
+      char.hp = Math.min(char.maxHp, char.hp + healAmount);
+      char.regenTurns -= 1;
+      if (char.regenTurns === 0) {
+        char.regenAmount = 0;
+      }
+    }
+  });
+  const activeRegen = team.some(char => char.regenTurns && char.regenTurns > 0);
+  if (activeRegen) {
+    const turnsLeft = team.find(char => char.regenTurns && char.regenTurns > 0)?.regenTurns || 0;
+    log.push(`🌿 Регенерация: команда восстановила 130 HP! Осталось ходов: ${turnsLeft}`);
   }
 };
 

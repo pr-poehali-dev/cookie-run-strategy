@@ -154,6 +154,20 @@ export const initialCharacters: Character[] = [
     emoji: '🛡️',
     energy: 0,
     maxEnergy: 3
+  },
+  {
+    id: 'herb',
+    name: 'Herb Cookie',
+    hp: 630,
+    maxHp: 630,
+    attack: 45,
+    defense: 10,
+    ability: 'Nature\'s Gift',
+    abilityDesc: 'Восстанавливает 130 HP всей команде каждый ход в течение 3 ходов (требует 3 энергии)',
+    gradient: 'bg-gradient-to-br from-green-300 via-emerald-400 to-teal-500',
+    emoji: '🌿',
+    energy: 0,
+    maxEnergy: 3
   }
 ];
 
@@ -251,8 +265,8 @@ export const bossTypes: Enemy[] = [
 export const extremeBoss: Enemy = {
   id: 'sky-titan',
   name: 'Титан Небес',
-  hp: 3000,
-  maxHp: 3000,
+  hp: 2700,
+  maxHp: 2700,
   attack: 140,
   emoji: '⚡'
 };
