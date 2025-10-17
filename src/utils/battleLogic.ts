@@ -75,6 +75,24 @@ export const performCharacterAbility = (
       }
     });
     newLog.push(`🐺 ${character.name} использует ${character.ability}! Урон: ${damage} всем врагам, команда восстановила ${healAmount} HP!`);
+  } else if (character.id === 'pale-lily') {
+    const heal = 200;
+    newTeam.forEach(char => {
+      if (char.hp > 0) {
+        char.hp = Math.min(char.maxHp, char.hp + heal);
+      }
+    });
+    newLog.push(`🌸 ${character.name} использует ${character.ability}! Команда восстановила ${heal} HP!`);
+  } else if (character.id === 'pale-garden-guard') {
+    const damage = Math.floor(character.attack * 1.3);
+    newEnemies.forEach(enemy => {
+      if (enemy.hp > 0) {
+        enemy.hp = Math.max(0, enemy.hp - damage);
+      }
+    });
+    const heal = 100;
+    character.hp = Math.min(character.maxHp, character.hp + heal);
+    newLog.push(`🛡️ ${character.name} использует ${character.ability}! Урон ${damage} всем врагам, восстановлено ${heal} HP!`);
   }
 };
 

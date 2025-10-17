@@ -126,6 +126,34 @@ export const initialCharacters: Character[] = [
     emoji: '⚔️',
     energy: 0,
     maxEnergy: 3
+  },
+  {
+    id: 'pale-lily',
+    name: 'Pale Lily Cookie',
+    hp: 600,
+    maxHp: 600,
+    attack: 60,
+    defense: 25,
+    ability: 'Garden Blessing',
+    abilityDesc: 'Восстанавливает 200 HP всей команде (требует 3 энергии)',
+    gradient: 'bg-gradient-to-br from-gray-100 via-purple-100 to-pink-100',
+    emoji: '🌸',
+    energy: 0,
+    maxEnergy: 3
+  },
+  {
+    id: 'pale-garden-guard',
+    name: 'Pale Garden Guard Cookie',
+    hp: 610,
+    maxHp: 610,
+    attack: 120,
+    defense: 30,
+    ability: 'Guardian Strike',
+    abilityDesc: 'Наносит 130% урона всем врагам и восстанавливает 100 HP себе (требует 3 энергии)',
+    gradient: 'bg-gradient-to-br from-slate-300 via-gray-400 to-zinc-500',
+    emoji: '🛡️',
+    energy: 0,
+    maxEnergy: 3
   }
 ];
 
@@ -229,7 +257,50 @@ export const extremeBoss: Enemy = {
   emoji: '⚡'
 };
 
+export const paleGardenEnemies: Enemy[] = [
+  {
+    id: 'pale-fly',
+    name: 'Бледная муха',
+    hp: 600,
+    maxHp: 600,
+    attack: 115,
+    emoji: '🦟'
+  },
+  {
+    id: 'corrupted-dough',
+    name: 'Испорченное тесто',
+    hp: 300,
+    maxHp: 300,
+    attack: 220,
+    emoji: '🧟'
+  },
+  {
+    id: 'shadow',
+    name: 'Тень',
+    hp: 800,
+    maxHp: 800,
+    attack: 80,
+    emoji: '👤'
+  },
+  {
+    id: 'garden-guardian',
+    name: 'Страж сада',
+    hp: 750,
+    maxHp: 750,
+    attack: 100,
+    emoji: '🗿'
+  }
+];
+
 export const getRandomBoss = (): Enemy => {
   const randomIndex = Math.floor(Math.random() * bossTypes.length);
   return { ...bossTypes[randomIndex] };
+};
+
+export const getRandomPaleGardenEnemies = (): Enemy[] => {
+  const shuffled = [...paleGardenEnemies].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 2).map((enemy, index) => ({
+    ...enemy,
+    id: `${enemy.id}-${index}`
+  }));
 };

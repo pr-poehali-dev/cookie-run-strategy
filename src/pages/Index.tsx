@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Character, Enemy, ViewType, BattleMode, TabType } from '@/types/game';
-import { initialCharacters, allEnemyTypes, bossTypes, extremeBoss, getRandomEnemies, getRandomEnemy, getRandomBoss } from '@/data/characters';
+import { initialCharacters, allEnemyTypes, bossTypes, extremeBoss, paleGardenEnemies, getRandomEnemies, getRandomEnemy, getRandomBoss, getRandomPaleGardenEnemies } from '@/data/characters';
 import { CharactersTab } from '@/components/game/CharactersTab';
 import { BattleTab } from '@/components/game/BattleTab';
 import { TeamSelection } from '@/components/game/TeamSelection';
@@ -123,6 +123,26 @@ const Index = () => {
     setCurrentView('extremeBattle');
   };
 
+  const startPaleGardenBattle = () => {
+    if (selectedTeam.length !== 2) {
+      return;
+    }
+    const selectedChars = initialCharacters.filter(c => selectedTeam.includes(c.id));
+    if (selectedChars.length !== 2) {
+      return;
+    }
+    setTeam(JSON.parse(JSON.stringify(selectedChars)));
+    const randomEnemies = getRandomPaleGardenEnemies();
+    setEnemies(randomEnemies);
+    setEnergy(selectedChars.map(() => 0));
+    setBattleLog([`🌸 Битва в Бледном саду! ${selectedChars.map(c => c.name).join(', ')} против ${randomEnemies.map(e => e.name).join(', ')}!`]);
+    setCurrentTurn(0);
+    setBattleActive(true);
+    setSelectedCharIndex(null);
+    setSelectedTarget(null);
+    setCurrentView('paleGarden');
+  };
+
   const performAction = (useAbility: boolean) => {
     if (selectedCharIndex === null || selectedTarget === null || !battleActive) return;
 
@@ -172,13 +192,16 @@ const Index = () => {
       const defeatedCount = newEnemies.length;
       const isBossBattle = currentView === 'bossBattle';
       const isExtremeBattle = currentView === 'extremeBattle';
-      const earnedCoins = isExtremeBattle ? 100 : (isBossBattle ? 50 : defeatedCount * 20);
+      const isPaleGarden = currentView === 'paleGarden';
+      const earnedCoins = isExtremeBattle ? 100 : (isBossBattle ? 50 : (isPaleGarden ? 30 : defeatedCount * 20));
       setCoins(coins + earnedCoins);
       newLog.push(`🎉 ПОБЕДА! Все враги повержены!`);
       if (isExtremeBattle) {
         newLog.push(`⚡ ТИТАН НЕБЕС ПОВЕРЖЁН!`);
       } else if (isBossBattle) {
         newLog.push(`💀 БОСС ПОВЕРЖЁН!`);
+      } else if (isPaleGarden) {
+        newLog.push(`🌸 БЛЕДНЫЙ САД ОЧИЩЕН!`);
       }
       newLog.push(`💰 Получено монет: ${earnedCoins}`);
       setBattleActive(false);
@@ -214,7 +237,7 @@ const Index = () => {
 
   const buyCharacter = (charId: string) => {
     if (ownedCharacters.includes(charId)) return;
-    const price = charId === 'metal-knight' ? 200 : 100;
+    const price = ['metal-knight', 'pale-lily', 'pale-garden-guard'].includes(charId) ? 200 : 100;
     if (coins < price) return;
     
     setCoins(coins - price);
@@ -243,6 +266,8 @@ const Index = () => {
     } else if (mode === 'extreme') {
       setBossTeamSize(3);
       setCurrentView('extremeTeamSelect');
+    } else if (mode === 'pale-garden') {
+      setCurrentView('paleGardenSelect');
     }
   };
 
@@ -385,7 +410,30 @@ const Index = () => {
         />
       )}
 
-      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle' || currentView === 'extremeBattle') && (
+      {currentView === 'paleGardenSelect' && (
+        <TeamSelection
+          characters={initialCharacters}
+          ownedCharacters={ownedCharacters}
+          selectedTeam={selectedTeam}
+          teamSize={2}
+          title="🌸 Бледный сад"
+          description="Выбери 2 героев для боя в Бледном саду"
+          onToggleCharacter={(charId) => {
+            if (selectedTeam.includes(charId)) {
+              setSelectedTeam(selectedTeam.filter(id => id !== charId));
+            } else if (selectedTeam.length < 2) {
+              setSelectedTeam([...selectedTeam, charId]);
+            }
+          }}
+          onStartBattle={startPaleGardenBattle}
+          onBack={() => {
+            setSelectedTeam([]);
+            setCurrentView('menu');
+          }}
+        />
+      )}
+
+      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle' || currentView === 'extremeBattle' || currentView === 'paleGarden') && (
         <BattleScene
           team={team}
           enemies={enemies}
