@@ -21,8 +21,8 @@ export const CharactersTab = ({ characters, ownedCharacters, coins, onBuyCharact
       <div className="grid md:grid-cols-5 gap-4">
         {characters.map((char) => {
           const isOwned = ownedCharacters.includes(char.id);
-          const price = ['metal-knight', 'pale-lily', 'pale-garden-guard', 'herb'].includes(char.id) ? 200 : 100;
-          const canBuy = !isOwned && coins >= price;
+          const price = ['metal-knight', 'pale-lily', 'pale-garden-guard', 'herb', 'choco-chess'].includes(char.id) ? 200 : (char.id === 'concierge' ? 0 : 100);
+          const canBuy = !isOwned && coins >= price && char.id !== 'concierge';
           
           return (
             <Card
@@ -78,7 +78,7 @@ export const CharactersTab = ({ characters, ownedCharacters, coins, onBuyCharact
                   </div>
                 </div>
 
-                {!isOwned && (
+                {!isOwned && char.id !== 'concierge' && (
                   <Button
                     onClick={() => onBuyCharacter(char.id)}
                     disabled={!canBuy}
@@ -91,6 +91,12 @@ export const CharactersTab = ({ characters, ownedCharacters, coins, onBuyCharact
                     <Icon name="ShoppingCart" className="mr-1" size={14} />
                     {price} 💰
                   </Button>
+                )}
+
+                {!isOwned && char.id === 'concierge' && (
+                  <div className="bg-gradient-to-r from-amber-100 to-yellow-100 p-2 rounded-xl border-2 border-amber-400 text-center">
+                    <p className="text-xs font-bold text-amber-900">♟️ Шахматная доска</p>
+                  </div>
                 )}
 
                 {isOwned && char.id === 'gingerbrave' && (

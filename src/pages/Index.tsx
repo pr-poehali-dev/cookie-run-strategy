@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Character, Enemy, ViewType, BattleMode, TabType } from '@/types/game';
-import { initialCharacters, allEnemyTypes, bossTypes, extremeBoss, paleGardenEnemies, getRandomEnemies, getRandomEnemy, getRandomBoss, getRandomPaleGardenEnemies } from '@/data/characters';
+import { initialCharacters, allEnemyTypes, bossTypes, extremeBoss, paleGardenEnemies, getRandomEnemies, getRandomEnemy, getRandomBoss, getRandomPaleGardenEnemies, getRandomChessEnemies } from '@/data/characters';
 import { CharactersTab } from '@/components/game/CharactersTab';
 import { BattleTab } from '@/components/game/BattleTab';
+import { ChessTab } from '@/components/game/ChessTab';
 import { TeamSelection } from '@/components/game/TeamSelection';
+import { ChessTeamSelection } from '@/components/game/ChessTeamSelection';
 import { HeroSelection } from '@/components/game/HeroSelection';
 import { BattleScene } from '@/components/game/BattleScene';
 import { BossTeamSelection } from '@/components/game/BossTeamSelection';
@@ -28,6 +30,14 @@ const Index = () => {
     const saved = localStorage.getItem('cookierun-coins');
     return saved ? parseInt(saved, 10) : 0;
   });
+  const [chessCoins, setChessCoins] = useState(() => {
+    const saved = localStorage.getItem('cookierun-chess-coins');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [coinsPurchases, setCoinsPurchases] = useState(() => {
+    const saved = localStorage.getItem('cookierun-coins-purchases');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [ownedCharacters, setOwnedCharacters] = useState<string[]>(() => {
     const saved = localStorage.getItem('cookierun-owned');
     return saved ? JSON.parse(saved) : ['gingerbrave'];
@@ -38,6 +48,14 @@ const Index = () => {
   useEffect(() => {
     localStorage.setItem('cookierun-coins', coins.toString());
   }, [coins]);
+
+  useEffect(() => {
+    localStorage.setItem('cookierun-chess-coins', chessCoins.toString());
+  }, [chessCoins]);
+
+  useEffect(() => {
+    localStorage.setItem('cookierun-coins-purchases', coinsPurchases.toString());
+  }, [coinsPurchases]);
 
   useEffect(() => {
     localStorage.setItem('cookierun-owned', JSON.stringify(ownedCharacters));
@@ -193,17 +211,26 @@ const Index = () => {
       const isBossBattle = currentView === 'bossBattle';
       const isExtremeBattle = currentView === 'extremeBattle';
       const isPaleGarden = currentView === 'paleGarden';
-      const earnedCoins = isExtremeBattle ? 100 : (isBossBattle ? 50 : (isPaleGarden ? 30 : defeatedCount * 20));
-      setCoins(coins + earnedCoins);
-      newLog.push(`🎉 ПОБЕДА! Все враги повержены!`);
-      if (isExtremeBattle) {
-        newLog.push(`⚡ ТИТАН НЕБЕС ПОВЕРЖЁН!`);
-      } else if (isBossBattle) {
-        newLog.push(`💀 БОСС ПОВЕРЖЁН!`);
-      } else if (isPaleGarden) {
-        newLog.push(`🌸 БЛЕДНЫЙ САД ОЧИЩЕН!`);
+      const isChessBattle = currentView === 'chessBattle';
+      
+      if (isChessBattle) {
+        setChessCoins(chessCoins + 10);
+        newLog.push(`🎉 ПОБЕДА! Все враги повержены!`);
+        newLog.push(`♟️ Получено шахмат: 10`);
+      } else {
+        const earnedCoins = isExtremeBattle ? 100 : (isBossBattle ? 50 : (isPaleGarden ? 30 : defeatedCount * 20));
+        setCoins(coins + earnedCoins);
+        newLog.push(`🎉 ПОБЕДА! Все враги повержены!`);
+        if (isExtremeBattle) {
+          newLog.push(`⚡ ТИТАН НЕБЕС ПОВЕРЖЁН!`);
+        } else if (isBossBattle) {
+          newLog.push(`💀 БОСС ПОВЕРЖЁН!`);
+        } else if (isPaleGarden) {
+          newLog.push(`🌸 БЛЕДНЫЙ САД ОЧИЩЕН!`);
+        }
+        newLog.push(`💰 Получено монет: ${earnedCoins}`);
       }
-      newLog.push(`💰 Получено монет: ${earnedCoins}`);
+      
       setBattleActive(false);
       setBattleLog(newLog);
       return;
@@ -291,6 +318,56 @@ const Index = () => {
     }
   };
 
+  const startChessBattle = () => {
+    if (selectedTeam.length < 1 || selectedTeam.length > 3) {
+      return;
+    }
+    const selectedChars = initialCharacters.filter(c => selectedTeam.includes(c.id));
+    if (selectedChars.length < 1) {
+      return;
+    }
+    setTeam(JSON.parse(JSON.stringify(selectedChars)));
+    const chessEnemies = getRandomChessEnemies();
+    setEnemies(chessEnemies);
+    setEnergy(selectedChars.map(() => 0));
+    setBattleLog([`♟️ Шахматный бой! ${selectedChars.map(c => c.name).join(', ')} против ${chessEnemies.map(e => e.name).join(', ')}!`]);
+    setCurrentTurn(0);
+    setBattleActive(true);
+    setSelectedCharIndex(null);
+    setSelectedTarget(null);
+    setCurrentView('chessBattle');
+  };
+
+  const buyCoinsWithChess = () => {
+    if (chessCoins >= 70 && coinsPurchases < 3) {
+      setChessCoins(chessCoins - 70);
+      setCoins(coins + 50);
+      setCoinsPurchases(coinsPurchases + 1);
+    }
+  };
+
+  const buyCharacterWithChess = (charId: string) => {
+    if (charId === 'concierge' && chessCoins >= 100 && !ownedCharacters.includes(charId)) {
+      setChessCoins(chessCoins - 100);
+      setOwnedCharacters([...ownedCharacters, charId]);
+    }
+  };
+
+  const handleResetProgress = () => {
+    if (window.confirm('Вы уверены, что хотите сбросить весь прогресс? Это действие нельзя отменить!')) {
+      localStorage.removeItem('cookierun-coins');
+      localStorage.removeItem('cookierun-chess-coins');
+      localStorage.removeItem('cookierun-coins-purchases');
+      localStorage.removeItem('cookierun-owned');
+      setCoins(0);
+      setChessCoins(0);
+      setCoinsPurchases(0);
+      setOwnedCharacters(['gingerbrave']);
+      setCurrentView('menu');
+      setActiveTab('characters');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-100 via-pink-50 to-yellow-100 p-4">
       {currentView === 'menu' && (
@@ -301,11 +378,20 @@ const Index = () => {
             </h1>
             <p className="text-2xl text-amber-800 font-semibold">Командная стратегия 🍪</p>
             
-            <div className="mt-4 inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-amber-500 px-8 py-4 rounded-3xl border-4 border-yellow-600 game-shadow">
-              <span className="text-4xl">💰</span>
-              <div className="text-left">
-                <p className="text-sm text-yellow-900 font-semibold">Ваши монеты</p>
-                <p className="text-3xl font-bold text-white drop-shadow-lg">{coins}</p>
+            <div className="flex justify-center items-center gap-4 mt-4">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-amber-500 px-8 py-4 rounded-3xl border-4 border-yellow-600 game-shadow">
+                <span className="text-4xl">💰</span>
+                <div className="text-left">
+                  <p className="text-sm text-yellow-900 font-semibold">Монеты</p>
+                  <p className="text-3xl font-bold text-white drop-shadow-lg">{coins}</p>
+                </div>
+              </div>
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-700 to-yellow-800 px-8 py-4 rounded-3xl border-4 border-amber-900 game-shadow">
+                <span className="text-4xl">♟️</span>
+                <div className="text-left">
+                  <p className="text-sm text-amber-900 font-semibold">Шахматы</p>
+                  <p className="text-3xl font-bold text-white drop-shadow-lg">{chessCoins}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -333,6 +419,17 @@ const Index = () => {
               <Icon name="Swords" className="mr-2" size={24} />
               Бой
             </Button>
+            <Button
+              onClick={() => setActiveTab('chess')}
+              className={`h-16 px-8 text-xl font-bold rounded-2xl transition-all ${
+                activeTab === 'chess'
+                  ? 'bg-amber-700 text-white game-shadow scale-105'
+                  : 'bg-white text-amber-700 border-3 border-amber-700'
+              }`}
+            >
+              <Icon name="Trophy" className="mr-2" size={24} />
+              Шахматы
+            </Button>
           </div>
 
           {activeTab === 'characters' && (
@@ -350,6 +447,29 @@ const Index = () => {
               bossTypes={bossTypes}
               extremeBoss={extremeBoss}
               onSelectMode={handleSelectMode}
+            />
+          )}
+
+          {activeTab === 'chess' && (
+            <ChessTab
+              characters={initialCharacters}
+              ownedCharacters={ownedCharacters}
+              chessCoins={chessCoins}
+              coins={coins}
+              coinsPurchases={coinsPurchases}
+              onBuyCharacter={(charId) => {
+                if (charId === 'concierge') {
+                  buyCharacterWithChess(charId);
+                } else {
+                  buyCharacter(charId);
+                }
+              }}
+              onBuyCoins={buyCoinsWithChess}
+              onStartChessBattle={() => {
+                setSelectedTeam([]);
+                setCurrentView('chessTeamSelect');
+              }}
+              onResetProgress={handleResetProgress}
             />
           )}
         </div>
@@ -438,7 +558,27 @@ const Index = () => {
         />
       )}
 
-      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle' || currentView === 'extremeBattle' || currentView === 'paleGarden') && (
+      {currentView === 'chessTeamSelect' && (
+        <ChessTeamSelection
+          characters={initialCharacters}
+          ownedCharacters={ownedCharacters}
+          selectedTeam={selectedTeam}
+          onToggleCharacter={(charId) => {
+            if (selectedTeam.includes(charId)) {
+              setSelectedTeam(selectedTeam.filter(id => id !== charId));
+            } else if (selectedTeam.length < 3) {
+              setSelectedTeam([...selectedTeam, charId]);
+            }
+          }}
+          onStartBattle={startChessBattle}
+          onBack={() => {
+            setSelectedTeam([]);
+            setCurrentView('menu');
+          }}
+        />
+      )}
+
+      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle' || currentView === 'extremeBattle' || currentView === 'paleGarden' || currentView === 'chessBattle') && (
         <BattleScene
           team={team}
           enemies={enemies}

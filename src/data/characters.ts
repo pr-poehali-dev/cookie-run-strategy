@@ -168,6 +168,34 @@ export const initialCharacters: Character[] = [
     emoji: '🌿',
     energy: 0,
     maxEnergy: 3
+  },
+  {
+    id: 'choco-chess',
+    name: 'Choco Chess Cookie',
+    hp: 700,
+    maxHp: 700,
+    attack: 100,
+    defense: 45,
+    ability: 'Chess Strike',
+    abilityDesc: 'Наносит 200% урона одному врагу (требует 3 энергии)',
+    gradient: 'bg-gradient-to-br from-amber-700 via-yellow-800 to-stone-900',
+    emoji: '♟️',
+    energy: 0,
+    maxEnergy: 3
+  },
+  {
+    id: 'concierge',
+    name: 'Concierge Cookie',
+    hp: 640,
+    maxHp: 640,
+    attack: 95,
+    defense: 30,
+    ability: 'Service Bell',
+    abilityDesc: 'Наносит 200% урона всем врагам, но теряет 20 HP за каждого врага (требует 3 энергии)',
+    gradient: 'bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-400',
+    emoji: '🔔',
+    energy: 0,
+    maxEnergy: 3
   }
 ];
 
@@ -314,6 +342,57 @@ export const getRandomBoss = (): Enemy => {
 export const getRandomPaleGardenEnemies = (): Enemy[] => {
   const shuffled = [...paleGardenEnemies].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, 2).map((enemy, index) => ({
+    ...enemy,
+    id: `${enemy.id}-${index}`
+  }));
+};
+
+export const chessEnemies: Enemy[] = [
+  {
+    id: 'queen',
+    name: 'Ферзь',
+    hp: 600,
+    maxHp: 600,
+    attack: 110,
+    emoji: '♕'
+  },
+  {
+    id: 'knight',
+    name: 'Конь',
+    hp: 600,
+    maxHp: 600,
+    attack: 150,
+    emoji: '♘'
+  },
+  {
+    id: 'king',
+    name: 'Король',
+    hp: 900,
+    maxHp: 900,
+    attack: 100,
+    emoji: '♔'
+  },
+  {
+    id: 'pawn',
+    name: 'Пешка',
+    hp: 500,
+    maxHp: 500,
+    attack: 85,
+    emoji: '♙'
+  },
+  {
+    id: 'rook',
+    name: 'Ладья',
+    hp: 700,
+    maxHp: 700,
+    attack: 100,
+    emoji: '♖'
+  }
+];
+
+export const getRandomChessEnemies = (): Enemy[] => {
+  const shuffled = [...chessEnemies].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 3).map((enemy, index) => ({
     ...enemy,
     id: `${enemy.id}-${index}`
   }));

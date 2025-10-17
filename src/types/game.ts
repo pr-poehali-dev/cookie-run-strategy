@@ -24,6 +24,6 @@ export interface Enemy {
   emoji: string;
 }
 
-export type ViewType = 'menu' | 'characters' | 'teamSelect' | 'heroSelect' | 'battle' | 'duel' | 'bossTeamSelect' | 'bossBattle' | 'extremeTeamSelect' | 'extremeBattle' | 'paleGardenSelect' | 'paleGarden';
-export type BattleMode = '3v3' | '1v1' | 'boss' | 'extreme' | 'pale-garden';
-export type TabType = 'characters' | 'battle';
+export type ViewType = 'menu' | 'characters' | 'teamSelect' | 'heroSelect' | 'battle' | 'duel' | 'bossTeamSelect' | 'bossBattle' | 'extremeTeamSelect' | 'extremeBattle' | 'paleGardenSelect' | 'paleGarden' | 'chessTeamSelect' | 'chessBattle';
+export type BattleMode = '3v3' | '1v1' | 'boss' | 'extreme' | 'pale-garden' | 'chess';
+export type TabType = 'characters' | 'battle' | 'chess';

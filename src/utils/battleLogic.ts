@@ -104,6 +104,22 @@ export const performCharacterAbility = (
       char.regenAmount = 130;
     });
     newLog.push(`🌿 ${character.name} использует ${character.ability}! Регенерация активирована на 3 хода (+130 HP/ход)!`);
+  } else if (character.id === 'choco-chess') {
+    const damage = Math.floor(character.attack * 2.0);
+    target.hp = Math.max(0, target.hp - damage);
+    newLog.push(`♟️ ${character.name} использует ${character.ability}! Урон: ${damage}!`);
+  } else if (character.id === 'concierge') {
+    const damage = Math.floor(character.attack * 2.0);
+    let enemiesHit = 0;
+    newEnemies.forEach(enemy => {
+      if (enemy.hp > 0) {
+        enemy.hp = Math.max(0, enemy.hp - damage);
+        enemiesHit++;
+      }
+    });
+    const selfDamage = enemiesHit * 20;
+    character.hp = Math.max(0, character.hp - selfDamage);
+    newLog.push(`🔔 ${character.name} использует ${character.ability}! Урон ${damage} всем врагам (${enemiesHit} целей), потеряно ${selfDamage} HP!`);
   }
 };
 
