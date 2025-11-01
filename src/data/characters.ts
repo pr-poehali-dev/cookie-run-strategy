@@ -74,8 +74,8 @@ export const initialCharacters: Character[] = [
   {
     id: 'wind-archer',
     name: 'Wind Archer',
-    hp: 550,
-    maxHp: 550,
+    hp: 630,
+    maxHp: 630,
     attack: 195,
     defense: 50,
     ability: 'Wind Shot',
@@ -88,8 +88,8 @@ export const initialCharacters: Character[] = [
   {
     id: 'sea-fairy',
     name: 'Sea Fairy Cookie',
-    hp: 600,
-    maxHp: 600,
+    hp: 640,
+    maxHp: 640,
     attack: 100,
     defense: 30,
     ability: 'Ocean Wave',
@@ -130,8 +130,8 @@ export const initialCharacters: Character[] = [
   {
     id: 'pale-lily',
     name: 'Pale Lily Cookie',
-    hp: 600,
-    maxHp: 600,
+    hp: 650,
+    maxHp: 650,
     attack: 60,
     defense: 25,
     ability: 'Garden Blessing',
@@ -222,6 +222,20 @@ export const initialCharacters: Character[] = [
     abilityDesc: 'Восстанавливает всем союзникам по 120 HP раз в ход в течении 5 ходов',
     gradient: 'bg-gradient-to-br from-sky-300 via-blue-400 to-indigo-400',
     emoji: '🦋',
+    energy: 0,
+    maxEnergy: 3
+  },
+  {
+    id: 'pumpkin-pie',
+    name: 'Pumpkin Pie Cookie',
+    hp: 680,
+    maxHp: 680,
+    attack: 125,
+    defense: 50,
+    ability: 'Pumpkin Blast',
+    abilityDesc: 'Наносит 250% урона одному противнику (требует 3 энергии)',
+    gradient: 'bg-gradient-to-br from-orange-400 via-orange-500 to-amber-600',
+    emoji: '🎃',
     energy: 0,
     maxEnergy: 3
   }
@@ -319,12 +333,12 @@ export const bossTypes: Enemy[] = [
 ];
 
 export const extremeBoss: Enemy = {
-  id: 'sky-titan',
-  name: 'Титан Небес',
-  hp: 2700,
-  maxHp: 2700,
-  attack: 140,
-  emoji: '⚡'
+  id: 'pumpkin-doll',
+  name: 'Тыквенная кукла',
+  hp: 3000,
+  maxHp: 3000,
+  attack: 160,
+  emoji: '🎃'
 };
 
 export const paleGardenEnemies: Enemy[] = [
@@ -370,6 +384,50 @@ export const getRandomBoss = (): Enemy => {
 export const getRandomPaleGardenEnemies = (): Enemy[] => {
   const shuffled = [...paleGardenEnemies].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, 2).map((enemy, index) => ({
+    ...enemy,
+    id: `${enemy.id}-${index}`
+  }));
+};
+
+export const pumpkinSpasEnemies: Enemy[] = [
+  {
+    id: 'pumpkin',
+    name: 'Тыква',
+    hp: 400,
+    maxHp: 400,
+    attack: 120,
+    emoji: '🎃'
+  },
+  {
+    id: 'skeleton',
+    name: 'Скелет',
+    hp: 3000,
+    maxHp: 3000,
+    attack: 20,
+    emoji: '💀'
+  },
+  {
+    id: 'ghost',
+    name: 'Призрак',
+    hp: 350,
+    maxHp: 350,
+    attack: 130,
+    emoji: '👻'
+  },
+  {
+    id: 'ghost-swarm',
+    name: 'Стая призраков',
+    hp: 1000,
+    maxHp: 1000,
+    attack: 100,
+    emoji: '👻👻👻',
+    isAoe: true
+  }
+];
+
+export const getRandomPumpkinSpasEnemies = (): Enemy[] => {
+  const shuffled = [...pumpkinSpasEnemies].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 3).map((enemy, index) => ({
     ...enemy,
     id: `${enemy.id}-${index}`
   }));

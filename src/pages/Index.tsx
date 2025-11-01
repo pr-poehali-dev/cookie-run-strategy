@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Character, Enemy, ViewType, BattleMode, TabType } from '@/types/game';
-import { initialCharacters, allEnemyTypes, bossTypes, extremeBoss, paleGardenEnemies, getRandomEnemies, getRandomEnemy, getRandomBoss, getRandomPaleGardenEnemies, getRandomChessEnemies } from '@/data/characters';
+import { initialCharacters, allEnemyTypes, bossTypes, extremeBoss, paleGardenEnemies, pumpkinSpasEnemies, getRandomEnemies, getRandomEnemy, getRandomBoss, getRandomPaleGardenEnemies, getRandomChessEnemies, getRandomPumpkinSpasEnemies } from '@/data/characters';
 import { CharactersTab } from '@/components/game/CharactersTab';
 import { BattleTab } from '@/components/game/BattleTab';
 import { ChessTab } from '@/components/game/ChessTab';
@@ -161,6 +161,26 @@ const Index = () => {
     setCurrentView('paleGarden');
   };
 
+  const startPumpkinSpasBattle = () => {
+    if (selectedTeam.length === 0) {
+      return;
+    }
+    const selectedChars = initialCharacters.filter(c => selectedTeam.includes(c.id));
+    if (selectedChars.length === 0) {
+      return;
+    }
+    setTeam(JSON.parse(JSON.stringify(selectedChars)));
+    const randomEnemies = getRandomPumpkinSpasEnemies();
+    setEnemies(randomEnemies);
+    setEnergy(selectedChars.map(() => 0));
+    setBattleLog([`🎃 Тыквенный спас! ${selectedChars.map(c => c.name).join(', ')} против ${randomEnemies.map(e => e.name).join(', ')}!`]);
+    setCurrentTurn(0);
+    setBattleActive(true);
+    setSelectedCharIndex(null);
+    setSelectedTarget(null);
+    setCurrentView('pumpkinSpas');
+  };
+
   const performAction = (useAbility: boolean) => {
     if (selectedCharIndex === null || selectedTarget === null || !battleActive) return;
 
@@ -212,21 +232,24 @@ const Index = () => {
       const isExtremeBattle = currentView === 'extremeBattle';
       const isPaleGarden = currentView === 'paleGarden';
       const isChessBattle = currentView === 'chessBattle';
+      const isPumpkinSpas = currentView === 'pumpkinSpas';
       
       if (isChessBattle) {
         setChessCoins(chessCoins + 10);
         newLog.push(`🎉 ПОБЕДА! Все враги повержены!`);
         newLog.push(`♟️ Получено шахмат: 10`);
       } else {
-        const earnedCoins = isExtremeBattle ? 100 : (isBossBattle ? 50 : (isPaleGarden ? 30 : defeatedCount * 20));
+        const earnedCoins = isExtremeBattle ? 100 : (isBossBattle ? 50 : (isPaleGarden ? 30 : (isPumpkinSpas ? 50 : defeatedCount * 20)));
         setCoins(coins + earnedCoins);
         newLog.push(`🎉 ПОБЕДА! Все враги повержены!`);
         if (isExtremeBattle) {
-          newLog.push(`⚡ ТИТАН НЕБЕС ПОВЕРЖЁН!`);
+          newLog.push(`🎃 ТЫКВЕННАЯ КУКЛА ПОВЕРЖЕНА!`);
         } else if (isBossBattle) {
           newLog.push(`💀 БОСС ПОВЕРЖЁН!`);
         } else if (isPaleGarden) {
           newLog.push(`🌸 БЛЕДНЫЙ САД ОЧИЩЕН!`);
+        } else if (isPumpkinSpas) {
+          newLog.push(`🎃 ТЫКВЕННЫЙ СПАС ПРОЙДЕН!`);
         }
         newLog.push(`💰 Получено монет: ${earnedCoins}`);
       }
@@ -272,7 +295,7 @@ const Index = () => {
 
   const buyCharacter = (charId: string) => {
     if (ownedCharacters.includes(charId)) return;
-    const price = ['metal-knight', 'pale-lily', 'pale-garden-guard', 'herb', 'eternal-sugar', 'sugarfly'].includes(charId) ? 200 : 100;
+    const price = ['metal-knight', 'pale-lily', 'pale-garden-guard', 'herb', 'eternal-sugar', 'sugarfly', 'pumpkin-pie'].includes(charId) ? 200 : 100;
     if (coins < price) return;
     
     setCoins(coins - price);
@@ -303,6 +326,9 @@ const Index = () => {
       setCurrentView('extremeTeamSelect');
     } else if (mode === 'pale-garden') {
       setCurrentView('paleGardenSelect');
+    } else if (mode === 'pumpkin-spas') {
+      setBossTeamSize(3);
+      setCurrentView('pumpkinSpasSelect');
     }
   };
 
@@ -342,9 +368,9 @@ const Index = () => {
   };
 
   const buyCoinsWithChess = () => {
-    if (chessCoins >= 70 && coinsPurchases < 3) {
-      setChessCoins(chessCoins - 70);
-      setCoins(coins + 50);
+    if (chessCoins >= 100 && coinsPurchases < 5) {
+      setChessCoins(chessCoins - 100);
+      setCoins(coins + 100);
       setCoinsPurchases(coinsPurchases + 1);
     }
   };
@@ -512,9 +538,10 @@ const Index = () => {
           ownedCharacters={ownedCharacters}
           selectedTeam={selectedTeam}
           teamSize={bossTeamSize}
+          mode="boss"
           onToggleCharacter={handleToggleBossTeamCharacter}
-          onSetTeamSize={handleSetBossTeamSize}
-          onStartBossBattle={startBossBattle}
+          onTeamSizeChange={setBossTeamSize}
+          onStartBattle={startBossBattle}
           onBack={() => {
             setSelectedTeam([]);
             setCurrentView('menu');
@@ -528,9 +555,10 @@ const Index = () => {
           ownedCharacters={ownedCharacters}
           selectedTeam={selectedTeam}
           teamSize={bossTeamSize}
+          mode="extreme"
           onToggleCharacter={handleToggleBossTeamCharacter}
-          onSetTeamSize={handleSetBossTeamSize}
-          onStartBossBattle={startExtremeBattle}
+          onTeamSizeChange={setBossTeamSize}
+          onStartBattle={startExtremeBattle}
           onBack={() => {
             setSelectedTeam([]);
             setCurrentView('menu');
@@ -581,7 +609,24 @@ const Index = () => {
         />
       )}
 
-      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle' || currentView === 'extremeBattle' || currentView === 'paleGarden' || currentView === 'chessBattle') && (
+      {currentView === 'pumpkinSpasSelect' && (
+        <BossTeamSelection
+          characters={initialCharacters}
+          ownedCharacters={ownedCharacters}
+          selectedTeam={selectedTeam}
+          teamSize={bossTeamSize}
+          mode="pumpkin-spas"
+          onToggleCharacter={handleToggleBossTeamCharacter}
+          onTeamSizeChange={setBossTeamSize}
+          onStartBattle={startPumpkinSpasBattle}
+          onBack={() => {
+            setSelectedTeam([]);
+            setCurrentView('menu');
+          }}
+        />
+      )}
+
+      {(currentView === 'battle' || currentView === 'duel' || currentView === 'bossBattle' || currentView === 'extremeBattle' || currentView === 'paleGarden' || currentView === 'chessBattle' || currentView === 'pumpkinSpas') && (
         <BattleScene
           team={team}
           enemies={enemies}

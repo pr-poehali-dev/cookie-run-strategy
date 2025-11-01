@@ -36,7 +36,7 @@ export const ChessTab = ({
 }: ChessTabProps) => {
   const chocoChess = characters.find(c => c.id === 'choco-chess');
   const concierge = characters.find(c => c.id === 'concierge');
-  const maxCoinsPurchases = 3;
+  const maxCoinsPurchases = 5;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -102,15 +102,15 @@ export const ChessTab = ({
                 <Card className="bg-gradient-to-br from-yellow-100 to-amber-200 p-4 border-3 border-yellow-500 rounded-xl">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <h4 className="text-lg font-bold text-yellow-900">💰 50 монет</h4>
-                      <p className="text-xs text-yellow-700">Купить за 70 шахмат</p>
+                      <h4 className="text-lg font-bold text-yellow-900">💰 100 монет</h4>
+                      <p className="text-xs text-yellow-700">Купить за 100 шахмат</p>
                       <p className="text-xs text-orange-700 font-bold mt-1">
                         Куплено: {coinsPurchases}/{maxCoinsPurchases}
                       </p>
                     </div>
                     <Button
                       onClick={onBuyCoins}
-                      disabled={chessCoins < 70 || coinsPurchases >= maxCoinsPurchases}
+                      disabled={chessCoins < 100 || coinsPurchases >= maxCoinsPurchases}
                       className="bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 disabled:opacity-50"
                     >
                       Купить

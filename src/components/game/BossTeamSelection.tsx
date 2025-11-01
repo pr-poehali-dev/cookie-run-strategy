@@ -8,9 +8,10 @@ interface BossTeamSelectionProps {
   ownedCharacters: string[];
   selectedTeam: string[];
   teamSize: number;
+  mode?: 'boss' | 'extreme' | 'pumpkin-spas';
   onToggleCharacter: (charId: string) => void;
-  onSetTeamSize: (size: number) => void;
-  onStartBossBattle: () => void;
+  onTeamSizeChange: (size: number) => void;
+  onStartBattle: () => void;
   onBack: () => void;
 }
 
@@ -19,11 +20,18 @@ export const BossTeamSelection = ({
   ownedCharacters,
   selectedTeam,
   teamSize,
+  mode = 'boss',
   onToggleCharacter,
-  onSetTeamSize,
-  onStartBossBattle,
+  onTeamSizeChange,
+  onStartBattle,
   onBack
 }: BossTeamSelectionProps) => {
+  const modeConfig = {
+    boss: { title: '💀 Выбор команды для битвы с боссом', color: 'red', icon: 'Skull' },
+    extreme: { title: '⚡ Выбор команды для экстрим боя', color: 'cyan', icon: 'Zap' },
+    'pumpkin-spas': { title: '🎃 Выбор команды для Тыквенного спаса', color: 'orange', icon: 'Ghost' }
+  };
+  const config = modeConfig[mode];
   return (
     <div className="max-w-5xl mx-auto py-8">
       <div className="mb-6">
@@ -38,7 +46,7 @@ export const BossTeamSelection = ({
       </div>
 
       <div className="text-center mb-8">
-        <h2 className="text-5xl font-bold text-red-800 mb-3">💀 Выбор команды для битвы с боссом</h2>
+        <h2 className="text-5xl font-bold text-red-800 mb-3">{config.title}</h2>
         <p className="text-xl text-red-700">
           Выбери от 1 до 3 героев для сражения ({selectedTeam.length}/{teamSize})
         </p>
@@ -51,7 +59,7 @@ export const BossTeamSelection = ({
             <Button
               key={size}
               onClick={() => {
-                onSetTeamSize(size);
+                onTeamSizeChange(size);
               }}
               className={`h-16 w-24 text-2xl font-bold rounded-2xl transition-all ${
                 teamSize === size
@@ -120,12 +128,12 @@ export const BossTeamSelection = ({
 
       <div className="text-center">
         <Button
-          onClick={onStartBossBattle}
+          onClick={onStartBattle}
           disabled={selectedTeam.length === 0 || selectedTeam.length < 1 || selectedTeam.length > teamSize}
           className="h-20 px-12 text-2xl font-bold bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white game-shadow rounded-3xl transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Icon name="Skull" className="mr-3" size={32} />
-          К боссу! ({selectedTeam.length}/{teamSize})
+          <Icon name={config.icon as any} className="mr-3" size={32} />
+          В бой! ({selectedTeam.length}/{teamSize})
         </Button>
         {selectedTeam.length === 0 && (
           <p className="mt-3 text-red-600 font-semibold">Выбери минимум 1 героя для боя!</p>

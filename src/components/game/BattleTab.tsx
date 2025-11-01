@@ -7,7 +7,7 @@ interface BattleTabProps {
   allEnemyTypes: Enemy[];
   bossTypes: Enemy[];
   extremeBoss: Enemy;
-  onSelectMode: (mode: '3v3' | '1v1' | 'boss' | 'extreme' | 'pale-garden') => void;
+  onSelectMode: (mode: '3v3' | '1v1' | 'boss' | 'extreme' | 'pale-garden' | 'pumpkin-spas') => void;
 }
 
 export const BattleTab = ({ allEnemyTypes, bossTypes, extremeBoss, onSelectMode }: BattleTabProps) => {
@@ -18,7 +18,7 @@ export const BattleTab = ({ allEnemyTypes, bossTypes, extremeBoss, onSelectMode 
         <p className="text-lg text-amber-600">Выбери подходящий режим и вступи в битву!</p>
       </div>
 
-      <div className="grid md:grid-cols-5 gap-4">
+      <div className="grid md:grid-cols-6 gap-4">
         <Card className="overflow-hidden border-3 border-amber-600 game-shadow hover:scale-105 transition-all rounded-2xl group cursor-pointer">
           <div className="bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 p-4 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
@@ -139,7 +139,7 @@ export const BattleTab = ({ allEnemyTypes, bossTypes, extremeBoss, onSelectMode 
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
             <div className="text-5xl mb-2 transform group-hover:scale-110 transition-transform">⚡</div>
             <h3 className="text-base font-bold text-white mb-1 drop-shadow-lg">Экстрим</h3>
-            <p className="text-sm text-white/90 font-semibold">1-3 vs Титан</p>
+            <p className="text-sm text-white/90 font-semibold">1-3 vs Кукла</p>
           </div>
 
           <div className="p-3 bg-white space-y-2">
@@ -216,6 +216,53 @@ export const BattleTab = ({ allEnemyTypes, bossTypes, extremeBoss, onSelectMode 
               className="w-full h-10 text-sm font-bold bg-gradient-to-r from-gray-400 to-slate-500 hover:from-gray-500 hover:to-slate-600 text-white game-shadow rounded-xl transition-transform hover:scale-105"
             >
               <Icon name="Flower2" className="mr-1" size={16} />
+              Выбрать
+            </Button>
+          </div>
+        </Card>
+
+        <Card className="overflow-hidden border-3 border-orange-600 game-shadow hover:scale-105 transition-all rounded-2xl group cursor-pointer">
+          <div className="bg-gradient-to-br from-orange-600 via-orange-500 to-amber-600 p-4 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all"></div>
+            <div className="text-5xl mb-2 transform group-hover:scale-110 transition-transform">🎃</div>
+            <h3 className="text-base font-bold text-white mb-1 drop-shadow-lg">Тыквенный спас</h3>
+            <p className="text-sm text-white/90 font-semibold">1-3 на 3</p>
+          </div>
+
+          <div className="p-3 bg-white space-y-2">
+            <p className="text-center text-xs text-orange-700 font-semibold">
+              1-3 героя против тыквенных врагов
+            </p>
+
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-2 rounded-xl border border-orange-300">
+              <h4 className="font-bold text-orange-800 mb-1 text-center text-xs">🎃 4 уникальных врага</h4>
+              <div className="grid grid-cols-4 gap-1">
+                <div className="text-center">
+                  <div className="text-xl">🎃</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl">💀</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl">👻</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl">👻👻👻</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 p-1.5 rounded-lg border border-yellow-400">
+              <p className="text-center text-xs font-bold text-amber-800">
+                💰 50 монет
+              </p>
+            </div>
+
+            <Button
+              onClick={() => onSelectMode('pumpkin-spas')}
+              className="w-full h-10 text-sm font-bold bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white game-shadow rounded-xl transition-transform hover:scale-105"
+            >
+              <Icon name="Ghost" className="mr-1" size={16} />
               Выбрать
             </Button>
           </div>

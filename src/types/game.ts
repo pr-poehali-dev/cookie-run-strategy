@@ -26,8 +26,9 @@ export interface Enemy {
   emoji: string;
   poisonTurns?: number;
   poisonDamage?: number;
+  isAoe?: boolean;
 }
 
-export type ViewType = 'menu' | 'characters' | 'teamSelect' | 'heroSelect' | 'battle' | 'duel' | 'bossTeamSelect' | 'bossBattle' | 'extremeTeamSelect' | 'extremeBattle' | 'paleGardenSelect' | 'paleGarden' | 'chessTeamSelect' | 'chessBattle';
-export type BattleMode = '3v3' | '1v1' | 'boss' | 'extreme' | 'pale-garden' | 'chess';
+export type ViewType = 'menu' | 'characters' | 'teamSelect' | 'heroSelect' | 'battle' | 'duel' | 'bossTeamSelect' | 'bossBattle' | 'extremeTeamSelect' | 'extremeBattle' | 'paleGardenSelect' | 'paleGarden' | 'chessTeamSelect' | 'chessBattle' | 'pumpkinSpasSelect' | 'pumpkinSpas';
+export type BattleMode = '3v3' | '1v1' | 'boss' | 'extreme' | 'pale-garden' | 'chess' | 'pumpkin-spas';
 export type TabType = 'characters' | 'battle' | 'chess';

@@ -139,6 +139,10 @@ export const performCharacterAbility = (
       char.healAmount = 120;
     });
     newLog.push(`🦋 ${character.name} использует ${character.ability}! Исцеление активировано на 5 ходов (+120 HP/ход)!`);
+  } else if (character.id === 'pumpkin-pie') {
+    const damage = Math.floor(character.attack * 2.5);
+    target.hp = Math.max(0, target.hp - damage);
+    newLog.push(`🎃 ${character.name} использует ${character.ability}! Мощный взрыв: ${damage}!`);
   }
 };
 
@@ -212,17 +216,33 @@ export const performEnemyTurn = (
 
   aliveEnemies.forEach(enemy => {
     if (aliveHeroes.length === 0) return;
-    const targetIndex = Math.floor(Math.random() * aliveHeroes.length);
-    const target = aliveHeroes[targetIndex];
-    if (!target) return;
-    const damage = Math.max(1, enemy.attack - Math.floor(target.defense * 0.3));
-    target.hp = Math.max(0, target.hp - damage);
-    newLog.push(`${enemy.emoji} ${enemy.name} атакует ${target.name}! Урон: ${damage}`);
     
-    if (target.hp === 0) {
-      const heroIndex = aliveHeroes.indexOf(target);
-      if (heroIndex !== -1) {
-        aliveHeroes.splice(heroIndex, 1);
+    if (enemy.isAoe) {
+      aliveHeroes.forEach(hero => {
+        const damage = Math.max(1, enemy.attack - Math.floor(hero.defense * 0.3));
+        hero.hp = Math.max(0, hero.hp - damage);
+      });
+      newLog.push(`${enemy.emoji} ${enemy.name} атакует всех героев! Урон по ${aliveHeroes.length} целям!`);
+      const deadHeroes = aliveHeroes.filter(h => h.hp === 0);
+      deadHeroes.forEach(h => {
+        const heroIndex = aliveHeroes.indexOf(h);
+        if (heroIndex !== -1) {
+          aliveHeroes.splice(heroIndex, 1);
+        }
+      });
+    } else {
+      const targetIndex = Math.floor(Math.random() * aliveHeroes.length);
+      const target = aliveHeroes[targetIndex];
+      if (!target) return;
+      const damage = Math.max(1, enemy.attack - Math.floor(target.defense * 0.3));
+      target.hp = Math.max(0, target.hp - damage);
+      newLog.push(`${enemy.emoji} ${enemy.name} атакует ${target.name}! Урон: ${damage}`);
+      
+      if (target.hp === 0) {
+        const heroIndex = aliveHeroes.indexOf(target);
+        if (heroIndex !== -1) {
+          aliveHeroes.splice(heroIndex, 1);
+        }
       }
     }
   });
