@@ -76,7 +76,7 @@ export const performCharacterAbility = (
     });
     newLog.push(`🐺 ${character.name} использует ${character.ability}! Урон: ${damage} всем врагам, команда восстановила ${healAmount} HP!`);
   } else if (character.id === 'pale-lily') {
-    const heal = 200;
+    const heal = 300;
     newTeam.forEach(char => {
       if (char.hp > 0) {
         char.hp = Math.min(char.maxHp, char.hp + heal);
@@ -101,9 +101,9 @@ export const performCharacterAbility = (
     }
     newTeam.forEach(char => {
       char.regenTurns = 3;
-      char.regenAmount = 130;
+      char.regenAmount = 160;
     });
-    newLog.push(`🌿 ${character.name} использует ${character.ability}! Регенерация активирована на 3 хода (+130 HP/ход)!`);
+    newLog.push(`🌿 ${character.name} использует ${character.ability}! Регенерация активирована на 3 хода (+160 HP/ход)!`);
   } else if (character.id === 'choco-chess') {
     const damage = Math.floor(character.attack * 2.0);
     target.hp = Math.max(0, target.hp - damage);
@@ -156,7 +156,7 @@ export const applyRegeneration = (team: Character[], log: string[]): void => {
   const activeRegen = team.some(char => char.regenTurns && char.regenTurns > 0);
   if (activeRegen) {
     const turnsLeft = team.find(char => char.regenTurns && char.regenTurns > 0)?.regenTurns || 0;
-    log.push(`🌿 Регенерация: команда восстановила 130 HP! Осталось ходов: ${turnsLeft}`);
+    log.push(`🌿 Регенерация: команда восстановила 160 HP! Осталось ходов: ${turnsLeft}`);
   }
 };
 
