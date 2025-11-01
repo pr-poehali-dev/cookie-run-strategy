@@ -120,6 +120,25 @@ export const performCharacterAbility = (
     const selfDamage = enemiesHit * 20;
     character.hp = Math.max(0, character.hp - selfDamage);
     newLog.push(`🔔 ${character.name} использует ${character.ability}! Урон ${damage} всем врагам (${enemiesHit} целей), потеряно ${selfDamage} HP!`);
+  } else if (character.id === 'eternal-sugar') {
+    newEnemies.forEach(enemy => {
+      if (enemy.hp > 0) {
+        enemy.poisonTurns = 3;
+        enemy.poisonDamage = 80;
+      }
+    });
+    newLog.push(`🍬 ${character.name} использует ${character.ability}! Все враги отравлены на 3 хода (80 урона/ход)!`);
+  } else if (character.id === 'sugarfly') {
+    const hasActiveHeal = newTeam.some(char => char.healTurns && char.healTurns > 0);
+    if (hasActiveHeal) {
+      newLog.push(`🦋 ${character.name} не может использовать способность - исцеление уже активно!`);
+      return;
+    }
+    newTeam.forEach(char => {
+      char.healTurns = 5;
+      char.healAmount = 120;
+    });
+    newLog.push(`🦋 ${character.name} использует ${character.ability}! Исцеление активировано на 5 ходов (+120 HP/ход)!`);
   }
 };
 
@@ -138,6 +157,42 @@ export const applyRegeneration = (team: Character[], log: string[]): void => {
   if (activeRegen) {
     const turnsLeft = team.find(char => char.regenTurns && char.regenTurns > 0)?.regenTurns || 0;
     log.push(`🌿 Регенерация: команда восстановила 130 HP! Осталось ходов: ${turnsLeft}`);
+  }
+};
+
+export const applyHealing = (team: Character[], log: string[]): void => {
+  team.forEach(char => {
+    if (char.healTurns && char.healTurns > 0 && char.hp > 0) {
+      const healAmount = char.healAmount || 0;
+      char.hp = Math.min(char.maxHp, char.hp + healAmount);
+      char.healTurns -= 1;
+      if (char.healTurns === 0) {
+        char.healAmount = 0;
+      }
+    }
+  });
+  const activeHeal = team.some(char => char.healTurns && char.healTurns > 0);
+  if (activeHeal) {
+    const turnsLeft = team.find(char => char.healTurns && char.healTurns > 0)?.healTurns || 0;
+    log.push(`🦋 Исцеление: команда восстановила 120 HP! Осталось ходов: ${turnsLeft}`);
+  }
+};
+
+export const applyPoison = (enemies: Enemy[], log: string[]): void => {
+  enemies.forEach(enemy => {
+    if (enemy.poisonTurns && enemy.poisonTurns > 0 && enemy.hp > 0) {
+      const damage = enemy.poisonDamage || 0;
+      enemy.hp = Math.max(0, enemy.hp - damage);
+      enemy.poisonTurns -= 1;
+      if (enemy.poisonTurns === 0) {
+        enemy.poisonDamage = 0;
+      }
+    }
+  });
+  const activePoison = enemies.some(enemy => enemy.poisonTurns && enemy.poisonTurns > 0);
+  if (activePoison) {
+    const turnsLeft = enemies.find(enemy => enemy.poisonTurns && enemy.poisonTurns > 0)?.poisonTurns || 0;
+    log.push(`☠️ Яд: враги получили 80 урона! Осталось ходов: ${turnsLeft}`);
   }
 };
 

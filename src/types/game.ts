@@ -13,6 +13,8 @@ export interface Character {
   maxEnergy: number;
   regenTurns?: number;
   regenAmount?: number;
+  healTurns?: number;
+  healAmount?: number;
 }
 
 export interface Enemy {
@@ -22,6 +24,8 @@ export interface Enemy {
   maxHp: number;
   attack: number;
   emoji: string;
+  poisonTurns?: number;
+  poisonDamage?: number;
 }
 
 export type ViewType = 'menu' | 'characters' | 'teamSelect' | 'heroSelect' | 'battle' | 'duel' | 'bossTeamSelect' | 'bossBattle' | 'extremeTeamSelect' | 'extremeBattle' | 'paleGardenSelect' | 'paleGarden' | 'chessTeamSelect' | 'chessBattle';

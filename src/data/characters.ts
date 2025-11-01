@@ -196,6 +196,34 @@ export const initialCharacters: Character[] = [
     emoji: '🔔',
     energy: 0,
     maxEnergy: 3
+  },
+  {
+    id: 'eternal-sugar',
+    name: 'Eternal Sugar Cookie',
+    hp: 800,
+    maxHp: 800,
+    attack: 130,
+    defense: 40,
+    ability: 'Sweet Poison',
+    abilityDesc: 'Отравляет всех противников на 3 хода (80 урона за тик) (требует 3 энергии)',
+    gradient: 'bg-gradient-to-br from-pink-300 via-rose-400 to-pink-500',
+    emoji: '🍬',
+    energy: 0,
+    maxEnergy: 3
+  },
+  {
+    id: 'sugarfly',
+    name: 'Sugarfly Cookie',
+    hp: 750,
+    maxHp: 750,
+    attack: 95,
+    defense: 50,
+    ability: 'Healing Wings',
+    abilityDesc: 'Восстанавливает всем союзникам по 120 HP раз в ход в течении 5 ходов',
+    gradient: 'bg-gradient-to-br from-sky-300 via-blue-400 to-indigo-400',
+    emoji: '🦋',
+    energy: 0,
+    maxEnergy: 3
   }
 ];
 
