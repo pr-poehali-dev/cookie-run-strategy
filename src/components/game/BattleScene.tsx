@@ -87,6 +87,13 @@ export const BattleScene = ({
                           </p>
                         </div>
                       )}
+                      {char.healTurns && char.healTurns > 0 && (
+                        <div className="bg-blue-100 p-1 rounded border border-blue-400">
+                          <p className="text-xs font-bold text-blue-800 text-center">
+                            🦋 Исцеление: {char.healTurns} ходов
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -113,12 +120,21 @@ export const BattleScene = ({
                       <h4 className="text-lg font-bold text-white drop-shadow">{enemy.name}</h4>
                       <span className="text-sm text-white/90">⚔️ {enemy.attack}</span>
                     </div>
-                    <div className="bg-white/90 p-2 rounded-lg">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="font-semibold">HP</span>
-                        <span className="font-bold">{enemy.hp} / {enemy.maxHp}</span>
+                    <div className="bg-white/90 p-2 rounded-lg space-y-2">
+                      <div>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="font-semibold">HP</span>
+                          <span className="font-bold">{enemy.hp} / {enemy.maxHp}</span>
+                        </div>
+                        <Progress value={(enemy.hp / enemy.maxHp) * 100} className="h-2" />
                       </div>
-                      <Progress value={(enemy.hp / enemy.maxHp) * 100} className="h-2" />
+                      {enemy.poisonTurns && enemy.poisonTurns > 0 && (
+                        <div className="bg-purple-100 p-1 rounded border border-purple-400">
+                          <p className="text-xs font-bold text-purple-800 text-center">
+                            ☠️ Отравление: {enemy.poisonTurns} ходов
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
